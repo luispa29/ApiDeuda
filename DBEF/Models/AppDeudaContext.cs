@@ -27,9 +27,11 @@ public partial class AppDeudaContext : DbContext
     {
         modelBuilder.Entity<Abono>(entity =>
         {
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Abono1)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("Abono");
+            entity.Property(e => e.IdPrestamo).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.IdPrestamoNavigation).WithMany(p => p.Abonos)
                 .HasForeignKey(d => d.IdPrestamo)
@@ -62,7 +64,7 @@ public partial class AppDeudaContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.MontoPrestamo).HasColumnType("decimal(18, 2)");
 
-            entity.HasOne(d => d.IdDeudorNavigation).WithMany(p => p.InverseIdDeudorNavigation)
+            entity.HasOne(d => d.IdDeudorNavigation).WithMany(p => p.Prestamos)
                 .HasForeignKey(d => d.IdDeudor)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Prestamos_deudor");

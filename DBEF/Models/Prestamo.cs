@@ -27,9 +27,7 @@ public partial class Prestamo
 
     public virtual ICollection<Abono> Abonos { get; set; } = new List<Abono>();
 
-    public virtual Prestamo IdDeudorNavigation { get; set; } = null!;
+    public virtual Deudore IdDeudorNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
-
-    public virtual ICollection<Prestamo> InverseIdDeudorNavigation { get; set; } = new List<Prestamo>();
 }

@@ -14,4 +14,6 @@ public partial class Deudore
     public bool Estado { get; set; }
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+
+    public virtual ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
 }
