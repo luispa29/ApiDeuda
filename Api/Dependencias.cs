@@ -1,10 +1,13 @@
 ﻿using Interfaces.Deudor.Logica;
 using Interfaces.Deudor.Service;
+using Interfaces.Prestamo;
 using Interfaces.Usuario;
 using Interfaces.Usuario.Services;
 using Logica.Deudor;
+using Logica.Prestamo;
 using Logica.Usuario;
 using Servicios.Deudor;
+using Servicios.Prestamo;
 using Servicios.Usuarios;
 
 namespace ApiDeuda
@@ -29,8 +32,17 @@ namespace ApiDeuda
             services.AddScoped<IDeudor, DeudorService>();
             services.AddScoped<IDeudorLogica, DeudorLogica>();
 
+            #endregion
+
+            #region Prestamo
+
+            services.AddScoped<IPrestamo, PrestamoService>();
+            services.AddScoped<IPrestamoLogica, PrestamoLogica>();
 
             #endregion
+
+
+
             return services;
         }
 
