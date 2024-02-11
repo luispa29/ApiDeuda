@@ -30,7 +30,7 @@ namespace Servicios.Prestamo
                                            Deudor = deudor,
                                            Abonos = abonosGroup.DefaultIfEmpty() // Manejo para cuando no hay abonos asociados
                                        })
-                                       .OrderByDescending(p => p.Prestamo.FechaPago)
+                                       .OrderByDescending(p => p.Prestamo.FechaPago).ThenBy(p=>p.Deudor.Nombres)
                                        .Skip((pagina) * registros)
                                        .Take(registros)
                                        .ToListAsync();
