@@ -10,6 +10,7 @@ namespace Interfaces.Deudor.Service
     public interface IDeudor
     {
         Task<int> ExisteDeudor(string deudor, int idUsuario);
+        Task<bool> ExisteDeudorId(int idDeudor, int idUsuario);
         
         Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, int idUsuario);
        

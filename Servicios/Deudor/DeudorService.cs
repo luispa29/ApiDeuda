@@ -98,6 +98,18 @@ namespace Servicios.Deudor
             }
         }
 
+        public async Task<bool> ExisteDeudorId(int idDeudor, int idUsuario)
+        {
+            try
+            {
+                return await _db.Deudores.Where(d => d.Id == idDeudor && d.IdUsuario == idUsuario).AnyAsync();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<GeneralResponse> RegistrarDeudor(string deudor, int idUsuario)
         {
             try
