@@ -1,5 +1,5 @@
-﻿using Interfaces.Usuarios;
-using Interfaces.Usuarios.Services;
+﻿using Interfaces.Usuario;
+using Interfaces.Usuario.Services;
 using Logica.Usuario;
 using Servicios.Usuarios;
 

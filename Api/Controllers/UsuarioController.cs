@@ -1,10 +1,7 @@
-﻿using DBEF.Models;
-using Interfaces.Usuarios;
-using Interfaces.Usuarios.Services;
+﻿using Interfaces.Usuario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Servicios.Usuarios;
 
 namespace ApiDeuda.Controllers
 {

@@ -1,10 +1,10 @@
 using ApiDeuda;
-using BackVisita.Util;
 using DBEF.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Utilidades;
 
 var builder = WebApplication.CreateBuilder(args);
 string MiCors = "MiCors";
