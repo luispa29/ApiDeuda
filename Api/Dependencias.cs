@@ -26,7 +26,6 @@ namespace ApiDeuda
 
             #endregion
 
-
             #region Deudor
 
             services.AddScoped<IDeudor, DeudorService>();
@@ -41,23 +40,17 @@ namespace ApiDeuda
 
             #endregion
 
-
-
             return services;
         }
 
         public static string DevolverTokenLimpio(string token)
         {
-
-
-            // Elimina el prefijo "Bearer " del token si está presente
             if (token.StartsWith("Bearer "))
             {
                 token = token.Substring("Bearer ".Length);
             }
 
             return token;
-
         }
     }
 }
