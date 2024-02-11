@@ -23,12 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DeudaAPI\DB\DBEF.csproj" />
-    <ProjectReference Include="..\..\DeudaAPI\Interfaces\Interfaces.csproj" />
-    <ProjectReference Include="..\..\DeudaAPI\Logica\Logica.csproj" />
-    <ProjectReference Include="..\..\DeudaAPI\Modelos\Modelos.csproj" />
-    <ProjectReference Include="..\..\DeudaAPI\Servicios\Servicios.csproj" />
-    <ProjectReference Include="..\..\DeudaAPI\Utilidades\Utilidades.csproj" />
+    <ProjectReference Include="..\DBEF\DBEF.csproj" />
+    <ProjectReference Include="..\Interfaces\Interfaces.csproj" />
+    <ProjectReference Include="..\Logica\Logica.csproj" />
+    <ProjectReference Include="..\Modelos\Modelos.csproj" />
+    <ProjectReference Include="..\Servicios\Servicios.csproj" />
+    <ProjectReference Include="..\Utilidades\Utilidades.csproj" />
   </ItemGroup>
 
 </Project>
