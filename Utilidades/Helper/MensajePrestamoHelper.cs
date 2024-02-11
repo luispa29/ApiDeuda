@@ -5,5 +5,6 @@ namespace Utilidades.Helper
     {
         public static readonly string Registrado = "El préstamo se registró con éxito";
         public static readonly string NoExisteDeudor = "El deudor no se encuentra registrado";
+        public static readonly string NoHayPrestamos = "No hay prestamos registrados";
     }
 }

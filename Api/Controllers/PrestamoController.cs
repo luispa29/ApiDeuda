@@ -15,12 +15,18 @@ namespace Api.Controllers
         private readonly IPrestamoLogica _prestamo = prestamo;
 
         [HttpPost("Registrar")]
-
         public async Task<IActionResult> Registrar(PrestamoQuery prestamo)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _prestamo.RegistrarPrestamo(prestamo,token));
+        }
+        [HttpGet("ConsultarPrestamos")]
+        public async Task<IActionResult> ConsultarPrestamos(int pagina, int registros, int? idDeudor, DateTime? fecha)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+            
+            return Ok(await _prestamo.ConsultarPrestamos(pagina,registros,idDeudor, token,fecha));
         }
     }
 }
