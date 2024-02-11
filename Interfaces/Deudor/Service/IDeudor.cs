@@ -17,6 +17,6 @@ namespace Interfaces.Deudor.Service
         
         Task<GeneralResponse> EditarDeudor(string deudor, int idDeudor, int idUsuario);
 
-        Task<GeneralResponse> CambiarEstadoDeudor(int idDeudor, int idUsuario, bool existe);
+        Task<GeneralResponse> CambiarEstadoDeudor(int idDeudor, int idUsuario, bool estado);
     }
 }

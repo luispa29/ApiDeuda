@@ -3,6 +3,7 @@ using Interfaces.Deudor.Logica;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Modelos.Response;
 
 namespace Api.Controllers
 {
@@ -14,11 +15,36 @@ namespace Api.Controllers
         private readonly IDeudorLogica _deudor = deudor;
 
         [HttpPost("RegistrarDeudor")]
-        public async Task<IActionResult> Login(string deudor)
+        public async Task<IActionResult> RegistrarDeudor(string deudor)
         {
-            string token = Dependencias.DevolverTokenLimpio(Request.Headers["Authorization"].FirstOrDefault());
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _deudor.RegistrarDeudor(deudor,token));
         }
+
+        [HttpDelete("EliminarDeudor")]
+        public async Task<IActionResult> EliminarDeudor(int idDeudor)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _deudor.EliminarDeudor(idDeudor, token));
+        }  
+
+        [HttpPut("EditarDeudor")]
+        public async Task<IActionResult> EditarDeudor(CatalogoResponse deudor)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _deudor.EditarDeudor(deudor, token));
+        }  
+        
+        [HttpGet("ConsultarDeudores/{pagina}/{registros}")]
+        public async Task<IActionResult> ConsultarDeudores(int pagina, int registros)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _deudor.ConsultarDeudores(pagina,registros, token));
+        }
+
     }
 }
