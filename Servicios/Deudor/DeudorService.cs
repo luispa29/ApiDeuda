@@ -4,7 +4,6 @@ using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
 using Microsoft.EntityFrameworkCore;
-using Modelos.Response.Usuario;
 
 namespace Servicios.Deudor
 {
@@ -35,7 +34,7 @@ namespace Servicios.Deudor
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
-
+ 
         public async Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, int idUsuario)
         {
             GeneralResponse respuesta = new();
