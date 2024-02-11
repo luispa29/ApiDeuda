@@ -9,14 +9,14 @@ namespace Interfaces.Deudor.Service
 {
     public interface IDeudor
     {
-        Task<bool> ExisteDeudor(string deudor, string correo);
+        Task<int> ExisteDeudor(string deudor, int idUsuario);
         
-        Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, string correo);
+        Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, int idUsuario);
        
-        Task<GeneralResponse> RegistrarDeudor(string deudor, string correo);
+        Task<GeneralResponse> RegistrarDeudor(string deudor, int idUsuario);
         
-        Task<GeneralResponse> EditarDeudor(string deudor, string correo);
-        
-        Task<GeneralResponse> CambiarEstadoDeudor(string deudor, string correo);
+        Task<GeneralResponse> EditarDeudor(string deudor, int idDeudor, int idUsuario);
+
+        Task<GeneralResponse> CambiarEstadoDeudor(int idDeudor, int idUsuario, bool existe);
     }
 }

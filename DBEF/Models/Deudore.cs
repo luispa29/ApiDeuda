@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Api.Models;
+namespace DBEF.Models;
 
 public partial class Deudore
 {

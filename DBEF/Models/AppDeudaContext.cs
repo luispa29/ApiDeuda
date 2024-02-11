@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace DBEF.Models;
@@ -14,11 +15,24 @@ public partial class AppDeudaContext : DbContext
     {
     }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<Deudore> Deudores { get; set; }
 
+    public virtual DbSet<Usuario> Usuarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Deudore>(entity =>
+        {
+            entity.Property(e => e.Nombres)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Deudores)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Deudores_Usuarios");
+        });
+
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.Property(e => e.Admin).HasColumnName("admin");
