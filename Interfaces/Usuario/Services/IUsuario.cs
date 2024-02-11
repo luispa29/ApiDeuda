@@ -15,5 +15,6 @@ namespace Interfaces.Usuario.Services
         Task<bool> EsAdmin(string correo);
 
         string ObtenerCorreoToken(string token);
+        Task<int> ObtenerId(string correo);
     }
 }

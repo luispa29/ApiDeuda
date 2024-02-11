@@ -152,11 +152,24 @@ namespace Servicios.Usuarios
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
 
             return correo;
+        }
+
+        public async Task<int> ObtenerId(string correo)
+        {
+            try
+            {
+                return await _dbEF.Usuarios.Where(u=> u.Correo.Trim() == correo.Trim()).Select(u=> u.Id).FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                return 0;
+            }
         }
 
         public async Task<GeneralResponse> RegistrarUsuario(string correo)
