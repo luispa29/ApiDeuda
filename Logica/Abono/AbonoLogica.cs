@@ -116,6 +116,33 @@ namespace Logica.Abono
             }
         }
 
+        public async Task<GeneralResponse> Consultar(int pagina, int registros, int idPrestamo, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                bool existePrestamo = await _prestamo.ExistePrestamo(idPrestamo, idUsuario);
+
+                if (existePrestamo)
+                {
+                    var consulta = await _abono.ConsultarAbonoPrestamo(pagina, registros, idPrestamo);
+                    consulta.Token = token;
+
+                    return consulta;
+                }
+                else
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo);
+                }
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
         private static GeneralResponse ValidarAbono(bool existePrestamo, decimal montoAbonar, decimal totalAbonado, decimal valorPrestamo, string token)
         {
             try
@@ -144,6 +171,5 @@ namespace Logica.Abono
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
-
     }
 }

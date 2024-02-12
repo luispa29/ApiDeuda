@@ -13,7 +13,7 @@ namespace Api.Controllers
         private readonly IAbonoLogica _abono = abono;
 
         [HttpPost("Registrar")]
-        public async Task<IActionResult>Registrar(decimal abono, int idPrestamo)
+        public async Task<IActionResult> Registrar(decimal abono, int idPrestamo)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
@@ -21,19 +21,27 @@ namespace Api.Controllers
         }
 
         [HttpPut("Editar")]
-        public async Task<IActionResult>Editar(decimal abono, int idAbono)
+        public async Task<IActionResult> Editar(decimal abono, int idAbono)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _abono.Editar(abono, idAbono, token));
-        } 
-        
+        }
+
         [HttpDelete("Eliminar")]
         public async Task<IActionResult> Eliminar(int idAbono)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _abono.Eliminar(idAbono, token));
+        }
+
+        [HttpGet("Consultar/{pagina}/{registros}/{idPrestamo}")]
+        public async Task<IActionResult> Consultar(int pagina, int registros, int idPrestamo)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _abono.Consultar(pagina,registros,idPrestamo, token));
         }
     }
 }

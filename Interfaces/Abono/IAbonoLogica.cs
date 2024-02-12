@@ -9,5 +9,7 @@ namespace Interfaces.Abono
         Task<GeneralResponse> Editar(decimal abono, int idAbono, string token);
         
         Task<GeneralResponse> Eliminar(int idAbono, string token);
+
+        Task<GeneralResponse> Consultar(int pagina, int registros,int idPrestamo, string token);
     }
 }

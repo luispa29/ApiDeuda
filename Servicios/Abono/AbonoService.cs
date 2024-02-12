@@ -114,5 +114,37 @@ namespace Servicios.Abono
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
+
+        public async Task<GeneralResponse> ConsultarAbonoPrestamo(int pagina, int registros, int idPrestamo)
+        {
+            try
+            {
+                var abonos = await _db.Abonos.Where(a => a.IdPrestamo == idPrestamo).Select(a => new AbonoResponse
+                {
+                    Abono = a.Abono1,
+                    Id = a.Id,
+                    Fecha = a.FechaAbono
+                })
+                .OrderByDescending(a => a.Fecha)
+                .Skip((pagina) * registros)
+                .Take(registros)
+                .ToListAsync();
+
+                if(abonos.Count == 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeAbonoHelper.NoExisteAbonos);
+                }
+
+                return new GeneralResponse
+                {
+                    Codigo = CodigoRespuesta.Exito,
+                    Data = abonos
+                };
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
     }
 }
