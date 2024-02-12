@@ -17,5 +17,7 @@ namespace Interfaces.Prestamo
         Task<decimal> ConsultarMontoPrestamo(int idPrestamo);
 
         Task<ValoresPrestamosResponse> ConsularTotalPrestamo(int idUsuario, int? IdDeudor, DateOnly? fechaDesde, DateOnly? fechaHasta);
+
+        Task<bool> ExistePrestamo(int idPrestamo);
     }
 }

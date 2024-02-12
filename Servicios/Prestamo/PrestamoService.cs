@@ -177,6 +177,18 @@ namespace Servicios.Prestamo
             }
         }
 
+        public async Task<bool> ExistePrestamo(int idPrestamo)
+        {
+            try
+            {
+                return await _db.Prestamos.Where(p=> p.Id == idPrestamo).AnyAsync();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<GeneralResponse> Registrar(PrestamoQuery prestamo, int idUsuario)
         {
             try
