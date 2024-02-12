@@ -3,6 +3,7 @@ using Interfaces.Prestamo;
 using Interfaces.Usuario.Services;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
+using Modelos.Response.Prestamo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,23 +20,56 @@ namespace Logica.Prestamo
         private readonly IPrestamo _prestamo = prestamo;
         private readonly IDeudor _duedor = deudor;
 
-        public async Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, string token, DateTime? fecha)
+        public async Task<GeneralResponse> ConsularTotalPrestamo(string token, int? IdDeudor, DateTime? fechaDesde, DateTime? fechaHasta)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                int idUsuario = await _usuario.ObtenerId(correo);
+                token = _usuario.GenerarToken(correo);
+
+                DateOnly? fechaDesdeConsulta = null;
+                DateOnly? fechaHastaConsulta = null;
+
+                if (fechaDesde != null && fechaHasta != null)
+                {
+                    fechaDesdeConsulta = Formatos.DevolverSoloFecha((DateTime)fechaDesde);
+                    fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);
+                }
+
+                var totlaPrestamos = await _prestamo.ConsularTotalPrestamo(idUsuario,IdDeudor, fechaDesdeConsulta, fechaHastaConsulta);
+              
+
+                var respuesta = Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
+                respuesta.Data = totlaPrestamos;
+
+                return respuesta;
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
+        public async Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, string token, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             try
             {
                 string correo = _usuario.ObtenerCorreoToken(token);
                 token = _usuario.GenerarToken(correo);
-                
+
                 int idUsuario = await _usuario.ObtenerId(correo);
 
-                DateOnly? fechaConsulta = null;
-                
-                if (fecha != null)
+                DateOnly? fechaDesdeConsulta = null;
+                DateOnly? fechaHastaConsulta = null;
+
+                if (fechaDesde != null && fechaHasta != null)
                 {
-                    fechaConsulta = Formatos.DevolverSoloFecha((DateTime)fecha);
+                    fechaDesdeConsulta = Formatos.DevolverSoloFecha((DateTime)fechaDesde);
+                    fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);
                 }
 
-                GeneralResponse consulta = await _prestamo.ConsultarPrestamos(pagina, registros, IdDeudor, idUsuario, fechaConsulta);
+                GeneralResponse consulta = await _prestamo.ConsultarPrestamos(pagina, registros, IdDeudor, idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
 
                 consulta.Token = token;
 

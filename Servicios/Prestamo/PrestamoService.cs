@@ -13,6 +13,40 @@ namespace Servicios.Prestamo
     {
         private readonly AppDeudaContext _db = db;
 
+        public async Task<ValoresPrestamosResponse> ConsularTotalPrestamo(int idUsuario, int? IdDeudor, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        {
+            ValoresPrestamosResponse totales = new();
+            try
+            {
+
+                var consulta = await (from prestamo in _db.Prestamos
+                                      join abono in _db.Abonos on prestamo.Id equals abono.IdPrestamo into abonoGroup
+                                      where prestamo.IdUsuario == idUsuario &&
+                                      (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
+                                      ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
+                                      select new
+                                      {
+                                          Prestamos = prestamo,
+                                          Abonos = abonoGroup.DefaultIfEmpty()
+                                      }).ToListAsync();
+
+                if (consulta.Count == 0)
+                {
+                    return totales;
+                }
+
+                totales.Prestado = consulta.Select(c => new { Valor = c.Prestamos.MontoPrestamo }).Sum(c => c.Valor);
+                totales.Cobrado = consulta.Select(c => new { Valor = c.Abonos.Sum(a => a?.Abono1 ?? 0) }).Sum(c => c.Valor);
+
+                return totales;
+            }
+            catch (Exception)
+            {
+
+                return totales;
+            }
+        }
+
         public async Task<decimal> ConsultarMontoPrestamo(int idPrestamo)
         {
             try
@@ -26,7 +60,7 @@ namespace Servicios.Prestamo
             }
         }
 
-        public async Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, int idUsuario, DateOnly? fecha)
+        public async Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             try
             {
@@ -36,14 +70,14 @@ namespace Servicios.Prestamo
                                        where prestamo.IdUsuario == idUsuario &&
                                              prestamo.PagoCompleto == false &&
                                              (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
-                                             ((prestamo.FechaPrestamo >= fecha && prestamo.FechaPrestamo <= fecha) || fecha == null)
+                                             ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
                                        select new
                                        {
                                            Prestamo = prestamo,
                                            Deudor = deudor,
                                            Abonos = abonosGroup.DefaultIfEmpty() // Manejo para cuando no hay abonos asociados
                                        })
-                                       .OrderByDescending(p => p.Prestamo.FechaPago).ThenBy(p=>p.Deudor.Nombres)
+                                       .OrderByDescending(p => p.Prestamo.FechaPago).ThenBy(p => p.Deudor.Nombres)
                                        .Skip((pagina) * registros)
                                        .Take(registros)
                                        .ToListAsync();

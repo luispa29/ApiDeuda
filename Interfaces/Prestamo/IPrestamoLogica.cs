@@ -7,7 +7,10 @@ namespace Interfaces.Prestamo
     public interface IPrestamoLogica
     {
         Task<GeneralResponse> RegistrarPrestamo(PrestamoQuery prestamo, string token);
-        Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, string token, DateTime? fecha);
+       
+        Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, string token, DateTime? fechaDesde, DateTime? fechaHasta);
+
+        Task<GeneralResponse> ConsularTotalPrestamo(string token, int? IdDeudor, DateTime? fechaDesde, DateTime? fechaHasta);
 
     }
 }
