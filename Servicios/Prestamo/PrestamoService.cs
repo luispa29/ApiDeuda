@@ -113,7 +113,37 @@ namespace Servicios.Prestamo
             }
         }
 
-        public async Task<GeneralResponse> RegistrarPrestamo(PrestamoQuery prestamo, int idUsuario)
+        public async Task<GeneralResponse> Editar(PrestamoQuery prestamo, int idUsuario, bool pagoCompleto)
+        {
+            try
+            {
+                var editar = await _db.Prestamos.Where(p => p.Id == prestamo.Id && p.IdUsuario == idUsuario).FirstOrDefaultAsync();
+
+                if (editar == null)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajePrestamoHelper.NoExistePrestamo);
+                }
+
+                editar.IdDeudor = prestamo.IdDeudor;
+                editar.Descripcion = prestamo.Descripcion.Trim();
+                editar.ImagenUrl = prestamo.ImagenUrl;
+                editar.ImagenId = prestamo.ImagenId;
+                editar.FechaPago = prestamo.FechaPago != null ? Formatos.DevolverSoloFecha((global::System.DateTime)prestamo.FechaPago) : null;
+                editar.MontoPrestamo =prestamo.MontoPrestamo;
+                editar.PagoCompleto = pagoCompleto;
+
+                await _db.SaveChangesAsync();
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Registrado);
+            }
+            catch (Exception)
+            {
+
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
+        public async Task<GeneralResponse> Registrar(PrestamoQuery prestamo, int idUsuario)
         {
             try
             {
@@ -124,8 +154,8 @@ namespace Servicios.Prestamo
                     ImagenUrl = prestamo.ImagenUrl,
                     ImagenId = prestamo.ImagenId,
                     MontoPrestamo = prestamo.MontoPrestamo,
-                    FechaPago = prestamo.FechaPago != null ? Utilidades.Formatos.DevolverSoloFecha((global::System.DateTime)prestamo.FechaPago) : null,
-                    FechaPrestamo = Utilidades.Formatos.ObtenerFechaHoraLocal(),
+                    FechaPago = prestamo.FechaPago != null ? Formatos.DevolverSoloFecha((global::System.DateTime)prestamo.FechaPago) : null,
+                    FechaPrestamo = Formatos.ObtenerFechaHoraLocal(),
                     IdUsuario = idUsuario,
                     PagoCompleto = false
                 });

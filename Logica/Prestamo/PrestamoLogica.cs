@@ -94,7 +94,7 @@ namespace Logica.Prestamo
 
                 if (existeDeudor)
                 {
-                    GeneralResponse registrar = await _prestamo.RegistrarPrestamo(prestamo, idUsuario);
+                    GeneralResponse registrar = await _prestamo.Registrar(prestamo, idUsuario);
                     registrar.Token = token;
 
                     return registrar;

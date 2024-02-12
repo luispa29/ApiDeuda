@@ -7,7 +7,9 @@ namespace Interfaces.Prestamo
 {
     public interface IPrestamo
     {
-        Task<GeneralResponse> RegistrarPrestamo(PrestamoQuery prestamo, int idUsuario);
+        Task<GeneralResponse> Registrar(PrestamoQuery prestamo, int idUsuario);
+
+        Task<GeneralResponse> Editar(PrestamoQuery prestamo, int idUsuario,bool pagoCompleto);
 
         Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
 
