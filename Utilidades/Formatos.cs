@@ -20,5 +20,10 @@ namespace Utilidades
             return new DateOnly(fecha.Year, fecha.Month, fecha.Day);
         }
 
+        public static string ReemplazarTexto(string texto, string remplazar, string textoReemplazo)
+        {
+            texto = texto.Replace(remplazar, textoReemplazo);
+            return texto;
+        }
     }
 }
