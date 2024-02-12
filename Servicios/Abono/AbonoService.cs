@@ -92,5 +92,27 @@ namespace Servicios.Abono
                 return null;
             }
         }
+
+        public async Task<GeneralResponse> Eliminar(int idAbono)
+        {
+            try
+            {
+                var eliminar = await _db.Abonos.FindAsync(idAbono);
+
+                if (eliminar == null)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeAbonoHelper.NoExiste);
+                }
+
+                _db.Remove(eliminar);
+                await _db.SaveChangesAsync();
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeAbonoHelper.Eliminado);
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
     }
 }

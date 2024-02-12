@@ -26,6 +26,14 @@ namespace Api.Controllers
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _abono.Editar(abono, idAbono, token));
+        } 
+        
+        [HttpDelete("Eliminar")]
+        public async Task<IActionResult> Eliminar(int idAbono)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _abono.Eliminar(idAbono, token));
         }
     }
 }

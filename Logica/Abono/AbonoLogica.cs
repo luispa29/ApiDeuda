@@ -55,7 +55,7 @@ namespace Logica.Abono
                 AbonoResponse abonoEditar = await _abono.AbonoEditar(idAbono);
                 if (abonoEditar == null)
                 {
-                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeAbonoHelper.NoExiste);
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajeAbonoHelper.NoExiste);
                 }
                 bool existePrestamo = await _prestamo.ExistePrestamo(abonoEditar.IdPrestamo, idUsuario);
                 decimal valorPrestamo = await _prestamo.ConsultarMontoPrestamo(abonoEditar.IdPrestamo);
@@ -77,6 +77,37 @@ namespace Logica.Abono
                 else
                 {
                     return valido;
+                }
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
+        public async Task<GeneralResponse> Eliminar(int idAbono, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                int idUsuario = await _usuario.ObtenerId(correo);
+                AbonoResponse abonoEditar = await _abono.AbonoEditar(idAbono);
+                if (abonoEditar == null)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajeAbonoHelper.NoExiste);
+                }
+                bool existePrestamo = await _prestamo.ExistePrestamo(abonoEditar.IdPrestamo, idUsuario);
+
+                if (existePrestamo)
+                {
+                    var eliminar = await _abono.Eliminar(idAbono);
+                    eliminar.Token = token;
+
+                    return eliminar;
+                }
+                else
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo);
                 }
             }
             catch (Exception)
