@@ -4,6 +4,7 @@ using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
 using Microsoft.EntityFrameworkCore;
+using Modelos.Response.Deudor;
 
 namespace Servicios.Deudor
 {
@@ -40,17 +41,30 @@ namespace Servicios.Deudor
             GeneralResponse respuesta = new();
             try
             {
-                var usuarios = await _db.Deudores.Where(d=> d.IdUsuario == idUsuario).Select(d => new CatalogoResponse { Codigo = d.Id, Valor = d.Nombres.Trim() })
-                                               
-                                                   .ToListAsync();
+                var consulta = await (from deudor in _db.Deudores
+                                      join prestamo in _db.Prestamos on deudor.Id equals prestamo.IdDeudor into prestamoGroup
+                                      where deudor.IdUsuario == idUsuario
+                                      select new
+                                      {
+                                          Deudores= deudor,
+                                          Prestamos = prestamoGroup.DefaultIfEmpty().Where(p=> p.PagoCompleto == false)
+                                      }
+                                      ).ToListAsync();
 
-                if (usuarios.Count == 0)
+                var deudores = consulta.Select(c=> new DeudorResponse
+                {
+                    Id = c.Deudores.Id,
+                    TotalPrestamo = c.Prestamos.Sum(p=> p?.MontoPrestamo ?? 0),
+                    Nombres = c.Deudores.Nombres.Trim()
+                }).ToList();
+
+                if (deudores.Count == 0)
                 {
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajesDeudorHelper.NoHayDeudoresRegistrados);
                 }
 
                 respuesta = Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, string.Empty);
-                respuesta.Data = usuarios;
+                respuesta.Data = deudores;
 
                 return respuesta;
             }

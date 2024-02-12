@@ -38,12 +38,12 @@ namespace Api.Controllers
             return Ok(await _deudor.EditarDeudor(deudor, token));
         }  
         
-        [HttpGet("ConsultarDeudores/{pagina}/{registros}")]
-        public async Task<IActionResult> ConsultarDeudores(int pagina, int registros)
+        [HttpGet("ConsultarDeudores")]
+        public async Task<IActionResult> ConsultarDeudores()
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
-            return Ok(await _deudor.ConsultarDeudores(pagina,registros, token));
+            return Ok(await _deudor.ConsultarDeudores(token));
         }
 
     }
