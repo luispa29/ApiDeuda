@@ -30,6 +30,14 @@ namespace Api.Controllers
             return Ok(await _prestamo.EditarPrestamo(prestamo, token));
         }
 
+        [HttpDelete("Eliminar")]
+        public async Task<IActionResult> Eliminar(int idPrestamo)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _prestamo.Eliminar(idPrestamo, token));
+        }
+
         [HttpGet("ConsultarPrestamos")]
         public async Task<IActionResult> ConsultarPrestamos(int pagina, int registros, int? idDeudor, DateTime? fechaDesde, DateTime? fechaHasta)
         {

@@ -92,6 +92,8 @@ namespace Logica.Prestamo
 
                 int idUsuario = await _usuario.ObtenerId(correo);
 
+                token = _usuario.GenerarToken(correo);
+
                 bool existePrestamo = await _prestamo.ExistePrestamo(prestamo.Id, idUsuario);
 
                 if (!existePrestamo) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo); }
@@ -149,13 +151,38 @@ namespace Logica.Prestamo
         private static GeneralResponse ValidarEdicionPrestamo(bool existeDeudor, string token, decimal montoPrestamo, decimal totalAbonado)
         {
             if (!existeDeudor) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExisteDeudor); }
-            if (montoPrestamo < totalAbonado) 
-            { 
-                string mensaje = Formatos.ReemplazarTexto(MensajePrestamoHelper.ValorMenor,MensajeAbonoHelper.Abonado, totalAbonado.ToString());
+            if (montoPrestamo < totalAbonado)
+            {
+                string mensaje = Formatos.ReemplazarTexto(MensajePrestamoHelper.ValorMenor, MensajeAbonoHelper.Abonado, totalAbonado.ToString());
                 return Transaccion.Respuesta(CodigoRespuesta.MontoMayor, 0, token, mensaje);
             }
 
             return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
+        }
+
+        public async Task<GeneralResponse> Eliminar(int idPrestamo, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                token = _usuario.GenerarToken(correo);
+
+                bool existePrestamo = await _prestamo.ExistePrestamo(idPrestamo, idUsuario);
+
+                if (!existePrestamo) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo); }
+
+                var eliminar = await _prestamo.Eliminar(idPrestamo, idUsuario);
+                eliminar.Token = token;
+
+                return eliminar;
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
     }
 }

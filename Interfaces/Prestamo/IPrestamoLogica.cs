@@ -13,5 +13,6 @@ namespace Interfaces.Prestamo
 
         Task<GeneralResponse> ConsularTotalPrestamo(string token, int? IdDeudor, DateTime? fechaDesde, DateTime? fechaHasta);
 
+        Task<GeneralResponse> Eliminar(int idPrestamo, string token);
     }
 }
