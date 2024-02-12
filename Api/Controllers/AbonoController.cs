@@ -1,7 +1,6 @@
 ﻿using ApiDeuda;
 using Interfaces.Abono;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -19,7 +18,14 @@ namespace Api.Controllers
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _abono.Registrar(abono, idPrestamo, token));
+        }
 
+        [HttpPut("Editar")]
+        public async Task<IActionResult>Editar(decimal abono, int idAbono)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _abono.Editar(abono, idAbono, token));
         }
     }
 }
