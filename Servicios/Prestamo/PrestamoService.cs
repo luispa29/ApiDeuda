@@ -135,7 +135,7 @@ namespace Servicios.Prestamo
 
                 await _db.SaveChangesAsync();
 
-                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Registrado);
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Actualizado);
             }
             catch (Exception)
             {

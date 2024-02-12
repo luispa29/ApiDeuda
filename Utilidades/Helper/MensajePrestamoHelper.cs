@@ -9,5 +9,6 @@ namespace Utilidades.Helper
         public static readonly string NoExisteDeudor = "El deudor no se encuentra registrado";
         public static readonly string NoExistePrestamo = "El prestamo no se encuentra registrado";
         public static readonly string NoHayPrestamos = "No hay prestamos registrados";
+        public static readonly string ValorMenor = "El valor del préstamo no puede ser inferior a los $[abonado] abonados.";
     }
 }

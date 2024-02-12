@@ -1,4 +1,5 @@
-﻿using Interfaces.Deudor.Service;
+﻿using Interfaces.Abono;
+using Interfaces.Deudor.Service;
 using Interfaces.Prestamo;
 using Interfaces.Usuario.Services;
 using Modelos.Query.Prestamo;
@@ -14,11 +15,12 @@ using Utilidades.Helper;
 
 namespace Logica.Prestamo
 {
-    public class PrestamoLogica(IPrestamo prestamo, IUsuario usuario, IDeudor deudor) : IPrestamoLogica
+    public class PrestamoLogica(IPrestamo prestamo, IUsuario usuario, IDeudor deudor, IAbono abono) : IPrestamoLogica
     {
         private readonly IUsuario _usuario = usuario;
         private readonly IPrestamo _prestamo = prestamo;
         private readonly IDeudor _duedor = deudor;
+        private readonly IAbono _abono = abono;
 
         public async Task<GeneralResponse> ConsularTotalPrestamo(string token, int? IdDeudor, DateTime? fechaDesde, DateTime? fechaHasta)
         {
@@ -37,8 +39,8 @@ namespace Logica.Prestamo
                     fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);
                 }
 
-                var totlaPrestamos = await _prestamo.ConsularTotalPrestamo(idUsuario,IdDeudor, fechaDesdeConsulta, fechaHastaConsulta);
-              
+                var totlaPrestamos = await _prestamo.ConsularTotalPrestamo(idUsuario, IdDeudor, fechaDesdeConsulta, fechaHastaConsulta);
+
 
                 var respuesta = Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
                 respuesta.Data = totlaPrestamos;
@@ -82,6 +84,40 @@ namespace Logica.Prestamo
             }
         }
 
+        public async Task<GeneralResponse> EditarPrestamo(PrestamoQuery prestamo, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                bool existePrestamo = await _prestamo.ExistePrestamo(prestamo.Id, idUsuario);
+
+                if (!existePrestamo) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo); }
+
+                decimal totalAbonado = await _abono.TotalAbonoPrestamo(prestamo.Id, idUsuario);
+
+                bool existeDeudor = await _duedor.ExisteDeudorId(prestamo.IdDeudor, idUsuario);
+                bool pagoCompleto = prestamo.MontoPrestamo == totalAbonado;
+
+                var valido = ValidarEdicionPrestamo(existeDeudor, token, prestamo.MontoPrestamo, totalAbonado);
+
+                if (valido.Codigo == CodigoRespuesta.Exito)
+                {
+                    GeneralResponse editar = await _prestamo.Editar(prestamo, idUsuario, pagoCompleto);
+                    editar.Token = token;
+
+                    return editar;
+                }
+                else { return valido; }
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
         public async Task<GeneralResponse> RegistrarPrestamo(PrestamoQuery prestamo, string token)
         {
             try
@@ -108,6 +144,18 @@ namespace Logica.Prestamo
             {
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
+        }
+
+        private static GeneralResponse ValidarEdicionPrestamo(bool existeDeudor, string token, decimal montoPrestamo, decimal totalAbonado)
+        {
+            if (!existeDeudor) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExisteDeudor); }
+            if (montoPrestamo < totalAbonado) 
+            { 
+                string mensaje = Formatos.ReemplazarTexto(MensajePrestamoHelper.ValorMenor,MensajeAbonoHelper.Abonado, totalAbonado.ToString());
+                return Transaccion.Respuesta(CodigoRespuesta.MontoMayor, 0, token, mensaje);
+            }
+
+            return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
         }
     }
 }

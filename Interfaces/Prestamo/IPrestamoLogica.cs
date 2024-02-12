@@ -7,6 +7,7 @@ namespace Interfaces.Prestamo
     public interface IPrestamoLogica
     {
         Task<GeneralResponse> RegistrarPrestamo(PrestamoQuery prestamo, string token);
+        Task<GeneralResponse> EditarPrestamo(PrestamoQuery prestamo, string token);
        
         Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, string token, DateTime? fechaDesde, DateTime? fechaHasta);
 
