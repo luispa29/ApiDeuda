@@ -177,11 +177,11 @@ namespace Servicios.Prestamo
             }
         }
 
-        public async Task<bool> ExistePrestamo(int idPrestamo)
+        public async Task<bool> ExistePrestamo(int idPrestamo, int idUsuario)
         {
             try
             {
-                return await _db.Prestamos.Where(p=> p.Id == idPrestamo).AnyAsync();
+                return await _db.Prestamos.Where(p=> p.Id == idPrestamo && p.IdUsuario ==idUsuario).AnyAsync();
             }
             catch (Exception)
             {
