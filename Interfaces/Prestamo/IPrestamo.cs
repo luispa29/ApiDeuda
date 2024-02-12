@@ -10,6 +10,7 @@ namespace Interfaces.Prestamo
         Task<GeneralResponse> Registrar(PrestamoQuery prestamo, int idUsuario);
 
         Task<GeneralResponse> Editar(PrestamoQuery prestamo, int idUsuario,bool pagoCompleto);
+        Task<GeneralResponse> Eliminar(int idPrestamo, int idUsuario);
 
         Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
 

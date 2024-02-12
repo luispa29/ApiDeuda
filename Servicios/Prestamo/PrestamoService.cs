@@ -6,6 +6,7 @@ using Utilidades.Helper;
 using Utilidades;
 using Modelos.Response.Prestamo;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Servicios.Prestamo
 {
@@ -129,7 +130,7 @@ namespace Servicios.Prestamo
                 editar.ImagenUrl = prestamo.ImagenUrl;
                 editar.ImagenId = prestamo.ImagenId;
                 editar.FechaPago = prestamo.FechaPago != null ? Formatos.DevolverSoloFecha((global::System.DateTime)prestamo.FechaPago) : null;
-                editar.MontoPrestamo =prestamo.MontoPrestamo;
+                editar.MontoPrestamo = prestamo.MontoPrestamo;
                 editar.PagoCompleto = pagoCompleto;
 
                 await _db.SaveChangesAsync();
@@ -138,7 +139,37 @@ namespace Servicios.Prestamo
             }
             catch (Exception)
             {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
 
+        public async Task<GeneralResponse> Eliminar(int idPrestamo, int idUsuario)
+        {
+            using var transaction = _db.Database.BeginTransaction();
+            try
+            {
+                var eliminar = await _db.Prestamos.Where(p => p.Id == idPrestamo && p.IdUsuario == idUsuario).FirstOrDefaultAsync();
+
+                if (eliminar == null)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajePrestamoHelper.NoExistePrestamo);
+                }
+
+                var abonos = await _db.Abonos.Where(a => a.IdPrestamo == idPrestamo).ToListAsync();
+
+                if (abonos.Count > 0)
+                {
+                    _db.RemoveRange(abonos);
+                    await _db.SaveChangesAsync();
+                }
+
+                _db.Remove(eliminar);
+                await _db.SaveChangesAsync();
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Eliminado);
+            }
+            catch (Exception)
+            {
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
