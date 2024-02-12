@@ -165,11 +165,14 @@ namespace Servicios.Prestamo
 
                 _db.Remove(eliminar);
                 await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Eliminado);
             }
             catch (Exception)
             {
+                await transaction.RollbackAsync();
+
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
