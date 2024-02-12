@@ -22,16 +22,14 @@ public partial class AppDeudaContext : DbContext
     public virtual DbSet<Prestamo> Prestamos { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Abono>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Abono1)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("Abono");
-            entity.Property(e => e.IdPrestamo).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.IdPrestamoNavigation).WithMany(p => p.Abonos)
                 .HasForeignKey(d => d.IdPrestamo)

@@ -105,7 +105,7 @@ namespace Servicios.Usuarios
                          new(ClaimTypes.NameIdentifier,correo.Trim()),
                         }
                         ),
-                    Expires = DateTime.UtcNow.AddHours(1),
+                    Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(llave), SecurityAlgorithms.HmacSha256)
                 };
 
@@ -122,7 +122,6 @@ namespace Servicios.Usuarios
                 throw;
             }
         }
-
 
         public string ObtenerCorreoToken(string token)
         {
