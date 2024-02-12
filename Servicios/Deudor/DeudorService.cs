@@ -35,14 +35,13 @@ namespace Servicios.Deudor
             }
         }
  
-        public async Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, int idUsuario)
+        public async Task<GeneralResponse> ConsultarDeudores(int idUsuario)
         {
             GeneralResponse respuesta = new();
             try
             {
                 var usuarios = await _db.Deudores.Where(d=> d.IdUsuario == idUsuario).Select(d => new CatalogoResponse { Codigo = d.Id, Valor = d.Nombres.Trim() })
-                                                   .Skip((pagina) * registros)
-                                                   .Take(registros)
+                                               
                                                    .ToListAsync();
 
                 if (usuarios.Count == 0)

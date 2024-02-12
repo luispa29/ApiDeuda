@@ -12,7 +12,7 @@ namespace Interfaces.Deudor.Service
         Task<int> ExisteDeudor(string deudor, int idUsuario);
         Task<bool> ExisteDeudorId(int idDeudor, int idUsuario);
         
-        Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, int idUsuario);
+        Task<GeneralResponse> ConsultarDeudores(int idUsuario);
        
         Task<GeneralResponse> RegistrarDeudor(string deudor, int idUsuario);
         

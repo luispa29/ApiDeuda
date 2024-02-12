@@ -12,7 +12,7 @@ namespace Logica.Deudor
         private readonly IDeudor _deudor = deudor;
         private readonly IUsuario _usuario = usuario;
 
-        public async Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, string token)
+        public async Task<GeneralResponse> ConsultarDeudores(string token)
         {
             try
             {
@@ -21,7 +21,7 @@ namespace Logica.Deudor
 
                 token = _usuario.GenerarToken(correo);
                 
-                var consulta = await _deudor.ConsultarDeudores(pagina, registros, idUsuario);
+                var consulta = await _deudor.ConsultarDeudores(idUsuario);
                 consulta.Token = token;
 
                 return consulta;

@@ -4,7 +4,7 @@ namespace Interfaces.Deudor.Logica
 {
     public interface IDeudorLogica
     {
-        Task<GeneralResponse> ConsultarDeudores(int pagina, int registros, string token);
+        Task<GeneralResponse> ConsultarDeudores(string token);
 
         Task<GeneralResponse> RegistrarDeudor(string deudor, string token);
 
