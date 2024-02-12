@@ -13,6 +13,19 @@ namespace Servicios.Prestamo
     {
         private readonly AppDeudaContext _db = db;
 
+        public async Task<decimal> ConsultarMontoPrestamo(int idPrestamo)
+        {
+            try
+            {
+                return await _db.Prestamos.Where(p => p.Id == idPrestamo).Select(p => p.MontoPrestamo).FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                return 0;
+            }
+        }
+
         public async Task<GeneralResponse> ConsultarPrestamos(int pagina, int registros, int? IdDeudor, int idUsuario, DateOnly? fecha)
         {
             try
