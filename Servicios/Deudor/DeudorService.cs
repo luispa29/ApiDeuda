@@ -43,13 +43,15 @@ namespace Servicios.Deudor
             {
                 var consulta = await (from deudor in _db.Deudores
                                       join prestamo in _db.Prestamos on deudor.Id equals prestamo.IdDeudor into prestamoGroup
-                                      where deudor.IdUsuario == idUsuario
+                                      where deudor.IdUsuario == idUsuario && deudor.Estado
                                       select new
                                       {
                                           Deudores= deudor,
                                           Prestamos = prestamoGroup.DefaultIfEmpty().Where(p=> p.PagoCompleto == false)
                                       }
-                                      ).ToListAsync();
+                                      )
+                                      .OrderBy(d=> d.Deudores.Nombres)
+                                      .ToListAsync();
 
                 var deudores = consulta.Select(c=> new DeudorResponse
                 {

@@ -6,7 +6,7 @@
 
         public int IdDeudor { get; set; }
 
-        public string Descripcion { get; set; } = null!;
+        public string? Descripcion { get; set; }
 
         public string? ImagenUrl { get; set; }
 
