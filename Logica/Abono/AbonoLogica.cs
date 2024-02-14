@@ -5,6 +5,7 @@ using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
 using Modelos.Response.Abono;
+using Microsoft.Win32;
 
 namespace Logica.Abono
 {
@@ -33,12 +34,17 @@ namespace Logica.Abono
                     var registrar = await _abono.Registrar(abono, idPrestamo);
                     registrar.Token = token;
 
+                    if (valorPrestamo == (totalAbonado + abono) && registrar.Codigo == CodigoRespuesta.Exito)
+                    {
+                        await _prestamo.MarcarComoPagado(idPrestamo, idUsuario);
+                    }
                     return registrar;
                 }
                 else
                 {
                     return valido;
                 }
+
             }
             catch (Exception)
             {
@@ -71,7 +77,10 @@ namespace Logica.Abono
                 {
                     var editar = await _abono.Editar(abono, idAbono);
                     editar.Token = token;
-
+                    if (valorPrestamo == (totalAbonado + abono) && editar.Codigo == CodigoRespuesta.Exito)
+                    {
+                        await _prestamo.MarcarComoPagado(abonoEditar.IdPrestamo, idUsuario);
+                    }
                     return editar;
                 }
                 else
