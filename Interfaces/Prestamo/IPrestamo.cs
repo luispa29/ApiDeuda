@@ -20,5 +20,6 @@ namespace Interfaces.Prestamo
         Task<ValoresPrestamosResponse> ConsularTotalPrestamo(int idUsuario, int? IdDeudor, DateOnly? fechaDesde, DateOnly? fechaHasta);
 
         Task<bool> ExistePrestamo(int idPrestamo,int idUsuario);
+        Task<bool> MarcarComoPagado(int idPrestamo,int idUsuario);
     }
 }

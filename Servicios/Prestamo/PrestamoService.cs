@@ -181,10 +181,35 @@ namespace Servicios.Prestamo
         {
             try
             {
-                return await _db.Prestamos.Where(p=> p.Id == idPrestamo && p.IdUsuario ==idUsuario).AnyAsync();
+                return await _db.Prestamos.Where(p => p.Id == idPrestamo && p.IdUsuario == idUsuario).AnyAsync();
             }
             catch (Exception)
             {
+                return false;
+            }
+        }
+
+        public async Task<bool> MarcarComoPagado(int idPrestamo, int idUsuario)
+        {
+            try
+            {
+                var prestamo = await _db.Prestamos.Where(p => p.Id == idPrestamo && p.IdUsuario == idUsuario).FirstOrDefaultAsync();
+                if (prestamo != null)
+                {
+                    prestamo.PagoCompleto = true;
+
+                    await _db.SaveChangesAsync();
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+
                 return false;
             }
         }
