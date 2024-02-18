@@ -91,6 +91,7 @@ namespace Servicios.Prestamo
                     FechaPago = p.Prestamo.FechaPago,
                     FechaPrestamo = p.Prestamo.FechaPrestamo,
                     Id = p.Prestamo.Id,
+                    IdDeudor = p.Deudor.Id,
                     Imgen = p.Prestamo.ImagenUrl,
                     ImgenId = p.Prestamo.ImagenId,
                     Prestamo = p.Prestamo.MontoPrestamo,

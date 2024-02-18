@@ -4,6 +4,7 @@ namespace Modelos.Response.Prestamo
     public class PrestamoResponse
     {
         public int Id { get; set; }
+        public int IdDeudor { get; set; }
         public decimal Prestamo { get; set; }
         public decimal Abono { get; set; }
         public string? Deudor { get; set; }
