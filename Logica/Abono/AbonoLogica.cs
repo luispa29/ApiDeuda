@@ -38,6 +38,7 @@ namespace Logica.Abono
                     {
                         await _prestamo.MarcarComoPagado(idPrestamo, idUsuario);
                     }
+                    registrar.Contador = await _prestamo.PorCobrar(idUsuario);
                     return registrar;
                 }
                 else
@@ -81,6 +82,8 @@ namespace Logica.Abono
                     {
                         await _prestamo.MarcarComoPagado(abonoEditar.IdPrestamo, idUsuario);
                     }
+                    editar.Contador = await _prestamo.PorCobrar(idUsuario);
+
                     return editar;
                 }
                 else
@@ -112,6 +115,8 @@ namespace Logica.Abono
                     var eliminar = await _abono.Eliminar(idAbono);
                     eliminar.Token = token;
 
+                    eliminar.Contador = await _prestamo.PorCobrar(idUsuario);
+
                     return eliminar;
                 }
                 else
@@ -138,6 +143,7 @@ namespace Logica.Abono
                 {
                     var consulta = await _abono.ConsultarAbonoPrestamo(pagina, registros, idPrestamo);
                     consulta.Token = token;
+                    consulta.Contador = await _prestamo.PorCobrar(idUsuario);
 
                     return consulta;
                 }
