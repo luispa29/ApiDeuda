@@ -215,6 +215,24 @@ namespace Servicios.Prestamo
             }
         }
 
+        public async Task<int> PorCobrar(int idUsuario)
+        {
+            int porCobrar = 0;
+
+            try
+            {
+                DateOnly fechaPago = Formatos.ObtenerFechaHoraLocal();
+
+                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago == fechaPago).CountAsync();
+                return porCobrar;
+            }
+            catch (Exception)
+            {
+
+                return porCobrar;
+            }
+        }
+
         public async Task<GeneralResponse> Registrar(PrestamoQuery prestamo, int idUsuario)
         {
             try

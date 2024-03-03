@@ -21,5 +21,6 @@ namespace Interfaces.Prestamo
 
         Task<bool> ExistePrestamo(int idPrestamo,int idUsuario);
         Task<bool> MarcarComoPagado(int idPrestamo,int idUsuario);
+        Task<int> PorCobrar(int idUsuario);
     }
 }
