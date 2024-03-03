@@ -44,7 +44,7 @@ namespace Logica.Prestamo
 
                 var respuesta = Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
                 respuesta.Data = totlaPrestamos;
-
+                respuesta.Contador = await _prestamo.PorCobrar(idUsuario);
                 return respuesta;
             }
             catch (Exception)
@@ -74,7 +74,7 @@ namespace Logica.Prestamo
                 GeneralResponse consulta = await _prestamo.ConsultarPrestamos(pagina, registros, IdDeudor, idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
 
                 consulta.Token = token;
-
+                consulta.Contador = await _prestamo.PorCobrar(idUsuario);
                 return consulta;
 
             }

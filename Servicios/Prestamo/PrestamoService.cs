@@ -24,7 +24,7 @@ namespace Servicios.Prestamo
                                       join abono in _db.Abonos on prestamo.Id equals abono.IdPrestamo into abonoGroup
                                       where prestamo.IdUsuario == idUsuario &&
                                       (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
-                                      ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
+                                      ((prestamo.FechaPago >= fechaDesde && prestamo.FechaPago <= fechaHasta) || fechaDesde == null || fechaHasta == null)
                                       select new
                                       {
                                           Prestamos = prestamo,
@@ -223,7 +223,7 @@ namespace Servicios.Prestamo
             {
                 DateOnly fechaPago = Formatos.ObtenerFechaHoraLocal();
 
-                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago == fechaPago).CountAsync();
+                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null ).CountAsync();
                 return porCobrar;
             }
             catch (Exception)

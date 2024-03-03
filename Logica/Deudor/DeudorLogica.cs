@@ -4,13 +4,15 @@ using Interfaces.Usuario.Services;
 using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
+using Interfaces.Prestamo;
 
 namespace Logica.Deudor
 {
-    public class DeudorLogica(IDeudor deudor, IUsuario usuario) : IDeudorLogica
+    public class DeudorLogica(IDeudor deudor, IUsuario usuario, IPrestamo prestamo) : IDeudorLogica
     {
         private readonly IDeudor _deudor = deudor;
         private readonly IUsuario _usuario = usuario;
+        private readonly IPrestamo _prestamo = prestamo;
 
         public async Task<GeneralResponse> ConsultarDeudores(string token)
         {
@@ -23,7 +25,7 @@ namespace Logica.Deudor
                 
                 var consulta = await _deudor.ConsultarDeudores(idUsuario);
                 consulta.Token = token;
-
+                consulta.Contador = await _prestamo.PorCobrar(idUsuario);
                 return consulta;
 
             }
