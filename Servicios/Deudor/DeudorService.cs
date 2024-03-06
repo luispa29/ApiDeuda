@@ -35,34 +35,62 @@ namespace Servicios.Deudor
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
- 
+
         public async Task<GeneralResponse> ConsultarDeudores(int idUsuario)
         {
             GeneralResponse respuesta = new();
             try
             {
+                List<int> IdsPrestamos = [];
+
                 var consulta = await (from deudor in _db.Deudores
                                       join prestamo in _db.Prestamos on deudor.Id equals prestamo.IdDeudor into prestamoGroup
                                       where deudor.IdUsuario == idUsuario && deudor.Estado
                                       select new
                                       {
-                                          Deudores= deudor,
-                                          Prestamos = prestamoGroup.DefaultIfEmpty().Where(p=> p.PagoCompleto == false)
+                                          Deudor = deudor,
+                                          Prestamo = prestamoGroup.DefaultIfEmpty().Where(p => p.PagoCompleto == false),
                                       }
                                       )
-                                      .OrderBy(d=> d.Deudores.Nombres)
+                                      .OrderBy(d => d.Deudor.Nombres)
                                       .ToListAsync();
 
-                var deudores = consulta.Select(c=> new DeudorResponse
+                var deudores = consulta.Select(c => new DeudorResponse
                 {
-                    Id = c.Deudores.Id,
-                    TotalPrestamo = c.Prestamos.Sum(p=> p?.MontoPrestamo ?? 0),
-                    Nombres = c.Deudores.Nombres.Trim()
+                    Id = c.Deudor.Id,
+                    TotalPrestamo = c.Prestamo.Sum(p => p?.MontoPrestamo ?? 0),
+                    Nombres = c.Deudor.Nombres.Trim()
                 }).ToList();
+
+                ;
 
                 if (deudores.Count == 0)
                 {
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajesDeudorHelper.NoHayDeudoresRegistrados);
+                }
+
+                var prestamos = consulta.SelectMany(c=> c.Prestamo.Select(p=> new { IdPrestamo = p.Id, p.IdDeudor })).ToList();
+                
+                var idPrestramos = prestamos.Select(p=> p.IdPrestamo).ToList();
+
+                var abonosPagados = await _db.Abonos.Where(a => idPrestramos.Contains(a.IdPrestamo)).Select(a => new { a.IdPrestamo, Abono = a.Abono1 }).ToListAsync();
+
+                var abonoAgrupados = (from abono in abonosPagados
+                                      join prestamo in prestamos on abono.IdPrestamo equals prestamo.IdPrestamo
+
+                                      select new
+                                      {
+                                          Abono = abonosPagados.Where(a => a.IdPrestamo == prestamo.IdPrestamo).Select(a => a.Abono).Sum(),
+                                          prestamo.IdDeudor
+                                      }).Distinct().ToList();
+
+                foreach (var deudor in deudores)
+                {
+                    if(deudor.TotalPrestamo > 0)
+                    {
+                        decimal pagado = abonoAgrupados.Where(a => a.IdDeudor == deudor.Id).Select(a=> a.Abono).FirstOrDefault();
+                        deudor.TotalPrestamo -= pagado;
+                    }
                 }
 
                 respuesta = Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, string.Empty);
@@ -104,7 +132,7 @@ namespace Servicios.Deudor
         {
             try
             {
-                int existe = await _db.Deudores.Where(d => d.Nombres.ToUpper().Trim() == deudor.ToUpper().Trim() && d.IdUsuario == idUsuario).Select(d=> d.Id).FirstOrDefaultAsync();
+                int existe = await _db.Deudores.Where(d => d.Nombres.ToUpper().Trim() == deudor.ToUpper().Trim() && d.IdUsuario == idUsuario).Select(d => d.Id).FirstOrDefaultAsync();
                 return existe;
             }
             catch (Exception)
@@ -146,5 +174,6 @@ namespace Servicios.Deudor
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
+
     }
 }

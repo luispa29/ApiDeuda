@@ -223,7 +223,7 @@ namespace Servicios.Prestamo
             {
                 DateOnly fechaPago = Formatos.ObtenerFechaHoraLocal();
 
-                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null ).CountAsync();
+                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null  && p.IdUsuario == idUsuario).CountAsync();
                 return porCobrar;
             }
             catch (Exception)
