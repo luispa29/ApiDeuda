@@ -22,7 +22,7 @@ public partial class AppDeudaContext : DbContext
     public virtual DbSet<Prestamo> Prestamos { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
-   
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Abono>(entity =>
@@ -76,6 +76,10 @@ public partial class AppDeudaContext : DbContext
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.Property(e => e.Admin).HasColumnName("admin");
+            entity.Property(e => e.CodigoCompartido)
+                .HasMaxLength(4)
+                .IsUnicode(false)
+                .HasColumnName("codigoCompartido");
             entity.Property(e => e.Correo)
                 .HasMaxLength(100)
                 .IsUnicode(false)

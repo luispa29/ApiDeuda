@@ -11,6 +11,8 @@ public partial class Usuario
 
     public bool Admin { get; set; }
 
+    public string? CodigoCompartido { get; set; }
+
     public virtual ICollection<Deudore> Deudores { get; set; } = new List<Deudore>();
 
     public virtual ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
