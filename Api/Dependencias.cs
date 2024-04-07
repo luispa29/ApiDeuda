@@ -40,6 +40,8 @@ namespace ApiDeuda
 
             services.AddScoped<IPrestamo, PrestamoService>();
             services.AddScoped<IPrestamoLogica, PrestamoLogica>();
+            services.AddScoped<ICompartirPrestamo, CompartirPrestamoServices>();
+            services.AddScoped<ICompartirPrestamoLogica, CompartirPrestamoLogica>();
 
             #endregion
             
