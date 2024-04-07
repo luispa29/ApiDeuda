@@ -29,7 +29,7 @@ namespace Servicios.Prestamo
                                           IdUsuario = usuario.Id,
                                       }).FirstOrDefaultAsync();
 
-                return consulta.IdUsuario;
+                return consulta != null ? consulta.IdUsuario : 0;
             }
             catch (Exception)
             {
