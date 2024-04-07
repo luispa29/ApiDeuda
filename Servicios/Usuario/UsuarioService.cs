@@ -162,7 +162,7 @@ namespace Servicios.Usuarios
         {
             try
             {
-                return await _dbEF.Usuarios.Where(u=> u.Correo.Trim() == correo.Trim()).Select(u=> u.Id).FirstOrDefaultAsync();
+                return await _dbEF.Usuarios.Where(u => u.Correo.Trim() == correo.Trim()).Select(u => u.Id).FirstOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -170,6 +170,7 @@ namespace Servicios.Usuarios
                 return 0;
             }
         }
+
 
         public async Task<GeneralResponse> RegistrarUsuario(string correo)
         {
@@ -180,6 +181,7 @@ namespace Servicios.Usuarios
                 {
                     Admin = false,
                     Correo = correo.Trim(),
+                    CodigoCompartido = Formatos.CodigoCompartido()
                 };
 
                 await _dbEF.Usuarios.AddAsync(nuevoUsuario);
@@ -190,6 +192,25 @@ namespace Servicios.Usuarios
             catch (Exception)
             {
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
+        public async Task RegistrarCodigoCompartido(string correo)
+        {
+            try
+            {
+                var modificar = await _dbEF.Usuarios.Where(u=> u.Correo == correo).FirstOrDefaultAsync();
+
+                if (string.IsNullOrEmpty(modificar?.CodigoCompartido))
+                {
+                    modificar.CodigoCompartido = Formatos.CodigoCompartido();
+
+                    await _dbEF.SaveChangesAsync();
+                }
+            }
+            catch 
+            {
+
             }
         }
     }

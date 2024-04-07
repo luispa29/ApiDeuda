@@ -35,6 +35,8 @@ namespace Logica.Usuario
                 var existe = await _usuario.ExisteUSuario(correo);
                 if (existe)
                 {
+                    await _usuario.RegistrarCodigoCompartido(correo);
+
                     return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
                 }
                 else
