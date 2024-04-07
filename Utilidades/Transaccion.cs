@@ -17,14 +17,15 @@ namespace Utilidades
         /// <param name="token">refrezcar token</param>
         /// <param name="mensaje">mensaje de respuesta</param>
         /// <returns></returns>
-        public static GeneralResponse Respuesta(int codigo, int contador, string token, string mensaje)
+        public static GeneralResponse Respuesta(int codigo, int contador, string token, string mensaje, object? data = null)
         {
             return new GeneralResponse
             {
                 Codigo = codigo,
                 Contador = contador,
                 Token = token,
-                Mensaje = mensaje
+                Mensaje = mensaje,
+                Data = data
             };
         }
 

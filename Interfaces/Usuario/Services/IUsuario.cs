@@ -8,7 +8,7 @@ namespace Interfaces.Usuario.Services
 
         Task<GeneralResponse> RegistrarUsuario(string correo);
 
-        Task<bool> ExisteUSuario(string correo);
+        Task<CatalogoResponse> Login(string correo);
 
         string GenerarToken(string correo);
 

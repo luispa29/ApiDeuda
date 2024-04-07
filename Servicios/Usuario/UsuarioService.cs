@@ -75,19 +75,19 @@ namespace Servicios.Usuarios
             return admin;
         }
 
-        public async Task<bool> ExisteUSuario(string correo)
+        public async Task<CatalogoResponse> Login(string correo)
         {
-            bool existe = false;
+            CatalogoResponse response = new();
             try
             {
-                existe = await _dbEF.Usuarios.Where(u => u.Correo.Trim() == correo.Trim()).AnyAsync();
+                response = await _dbEF.Usuarios.Where(u => u.Correo.Trim() == correo.Trim()).Select(u=> new CatalogoResponse { Codigo = CodigoRespuesta.Existe, Valor = u.CodigoCompartido}) .FirstOrDefaultAsync();
             }
             catch (Exception)
             {
 
                 throw;
             }
-            return existe;
+            return response;
         }
 
         public string GenerarToken(string correo)

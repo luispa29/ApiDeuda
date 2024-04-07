@@ -32,12 +32,12 @@ namespace Logica.Usuario
             try
             {
                 var token = _usuario.GenerarToken(correo);
-                var existe = await _usuario.ExisteUSuario(correo);
-                if (existe)
+                var existe = await _usuario.Login(correo);
+                if (existe != null)
                 {
                     await _usuario.RegistrarCodigoCompartido(correo);
 
-                    return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
+                    return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty,existe.Valor);
                 }
                 else
                 {
