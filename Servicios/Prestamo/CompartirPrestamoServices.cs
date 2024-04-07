@@ -1,5 +1,6 @@
 ﻿using DBEF.Models;
 using Interfaces.Prestamo;
+using Microsoft.EntityFrameworkCore;
 using Modelos.Response;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,32 @@ using System.Threading.Tasks;
 
 namespace Servicios.Prestamo
 {
-    public class CompartirPrestamoServices(AppDeudaContext db) : ICompartirPrestamo
+    public class CompartirPrestamoServices(AppDeudaContext db, IPrestamo prestamo) : ICompartirPrestamo
     {
 
         private readonly AppDeudaContext _db = db;
-        public Task<GeneralResponse> VerPrestamos(int idDeudor, string codigoCompartido)
+        private readonly IPrestamo _prestamo = prestamo;
+
+        public async Task<int> ValidoCodigo(int idDeudor, string codigoCompartido)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var consulta = await (from usuario in _db.Usuarios
+                                      join deudor in _db.Deudores on usuario.Id equals deudor.IdUsuario
+                                      where usuario.CodigoCompartido == codigoCompartido &&
+                                            deudor.Id == idDeudor
+                                      select new
+                                      {
+                                          IdUsuario = usuario.Id,
+                                      }).FirstOrDefaultAsync();
+
+                return consulta.IdUsuario;
+            }
+            catch (Exception)
+            {
+
+                return 0;
+            }
         }
     }
 }

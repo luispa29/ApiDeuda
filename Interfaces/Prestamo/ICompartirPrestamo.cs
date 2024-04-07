@@ -9,7 +9,8 @@ namespace Interfaces.Prestamo
 {
     public interface ICompartirPrestamo
     {
-        Task<GeneralResponse> VerPrestamos(int idDeudor, string codigoCompartido);
+
+        Task<int> ValidoCodigo(int idDeudor, string codigoCompartido);
 
     }
 }
