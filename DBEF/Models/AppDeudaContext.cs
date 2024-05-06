@@ -19,7 +19,11 @@ public partial class AppDeudaContext : DbContext
 
     public virtual DbSet<Deudore> Deudores { get; set; }
 
+    public virtual DbSet<Ignorado> Ignorados { get; set; }
+
     public virtual DbSet<Prestamo> Prestamos { get; set; }
+
+    public virtual DbSet<Prueba> Pruebas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
@@ -49,6 +53,17 @@ public partial class AppDeudaContext : DbContext
                 .HasConstraintName("FK_Deudores_Usuarios");
         });
 
+        modelBuilder.Entity<Ignorado>(entity =>
+        {
+            entity.HasOne(d => d.IdDeudorNavigation).WithMany(p => p.Ignorados)
+                .HasForeignKey(d => d.IdDeudor)
+                .HasConstraintName("FK_Ignorados_deudor");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Ignorados)
+                .HasForeignKey(d => d.IdUsuario)
+                .HasConstraintName("FK_Ignorados_Usuario");
+        });
+
         modelBuilder.Entity<Prestamo>(entity =>
         {
             entity.Property(e => e.Descripcion)
@@ -71,6 +86,15 @@ public partial class AppDeudaContext : DbContext
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Prestamos_usuario");
+        });
+
+        modelBuilder.Entity<Prueba>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("prueba", "Chains");
+
+            entity.Property(e => e.Id).HasColumnName("id");
         });
 
         modelBuilder.Entity<Usuario>(entity =>
