@@ -11,6 +11,8 @@ namespace Utilidades.Helper
         public static readonly string NoHayPrestamos = "No hay prestamos registrados";
         public static readonly string ValorMenor = "El valor del préstamo no puede ser inferior a los $[abonado] abonados.";
         public static readonly string CodigoIncorrecto = "El código ingresado es incorrecto";
+        public static readonly string NoHayIgnorados = "No hay deudores ignorados";
+
 
     }
 }

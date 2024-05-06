@@ -19,12 +19,16 @@ namespace Servicios.Prestamo
             ValoresPrestamosResponse totales = new();
             try
             {
+                var ignorados = await ObtenerIgnorados(idUsuario);
+
+                var ignorar = ObtenerCodigosIgnorados(ignorados);
 
                 var consulta = await (from prestamo in _db.Prestamos
                                       join abono in _db.Abonos on prestamo.Id equals abono.IdPrestamo into abonoGroup
                                       where prestamo.IdUsuario == idUsuario &&
                                       (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
-                                      ((prestamo.FechaPago >= fechaDesde && prestamo.FechaPago <= fechaHasta) || fechaDesde == null || fechaHasta == null)
+                                      ((prestamo.FechaPago >= fechaDesde && prestamo.FechaPago <= fechaHasta) || fechaDesde == null || fechaHasta == null) &&
+                                      !ignorar.Contains(prestamo.IdDeudor)
                                       select new
                                       {
                                           Prestamos = prestamo,
@@ -221,9 +225,13 @@ namespace Servicios.Prestamo
 
             try
             {
+                var ignorados = await ObtenerIgnorados(idUsuario);
+
+                var ignorar = ObtenerCodigosIgnorados(ignorados);
+
                 DateOnly fechaPago = Formatos.ObtenerFechaHoraLocal();
 
-                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null  && p.IdUsuario == idUsuario).CountAsync();
+                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null && p.IdUsuario == idUsuario && !ignorar.Contains(p.IdDeudor)).CountAsync();
                 return porCobrar;
             }
             catch (Exception)
@@ -259,5 +267,48 @@ namespace Servicios.Prestamo
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
+
+        public async Task<GeneralResponse> ObtenerIgnorados(int idUsuario)
+        {
+            var respuesta = new GeneralResponse();
+            try
+            {
+                var ignorados = await (from ignorado in _db.Ignorados
+                                       join deudor in _db.Deudores on ignorado.IdDeudor equals deudor.Id
+                                       where ignorado.IdUsuario == idUsuario
+                                       select new CatalogoResponse
+                                       {
+                                           Codigo = deudor.Id,
+                                           Valor = deudor.Nombres.Trim()
+                                       }).OrderBy(i => i.Valor)
+                                         .ToListAsync();
+                if (ignorados.Count == 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajePrestamoHelper.NoHayIgnorados);
+                }
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, string.Empty, ignorados);
+            }
+            catch {
+                return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajePrestamoHelper.NoHayIgnorados);
+            }
+        }
+
+        private  static List<int> ObtenerCodigosIgnorados(GeneralResponse respuesta)
+        {
+            var codigos = new List<int>();
+
+            if (respuesta.Codigo != CodigoRespuesta.Exito)
+            {
+                return codigos;
+            }
+
+            var ignorados = respuesta.Data as List<CatalogoResponse>;
+
+            codigos = ignorados.Select(i => i.Codigo).ToList();
+
+            return codigos;
+        }
+
     }
 }
