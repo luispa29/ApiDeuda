@@ -76,6 +76,7 @@ public partial class AppDeudaContext : DbContext
                 .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.MontoPrestamo).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Propio).HasColumnName("propio");
 
             entity.HasOne(d => d.IdDeudorNavigation).WithMany(p => p.Prestamos)
                 .HasForeignKey(d => d.IdDeudor)

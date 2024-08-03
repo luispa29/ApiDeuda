@@ -25,6 +25,8 @@ public partial class Prestamo
 
     public bool? PagoCompleto { get; set; }
 
+    public bool? Propio { get; set; }
+
     public virtual ICollection<Abono> Abonos { get; set; } = new List<Abono>();
 
     public virtual Deudore IdDeudorNavigation { get; set; } = null!;
