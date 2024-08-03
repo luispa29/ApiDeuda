@@ -6,6 +6,8 @@ using Utilidades.Helper;
 using Utilidades;
 using Microsoft.EntityFrameworkCore;
 using Modelos.Response.Prestamo;
+using Microsoft.Win32;
+using Interfaces.Deudor.Service;
 
 namespace Servicios.Gasto
 {
@@ -14,14 +16,18 @@ namespace Servicios.Gasto
         private readonly AppDeudaContext _db = db;
         public async Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
-            var prestamos = await(from prestamo in _db.Prestamos
-                                  where prestamo.IdUsuario == idUsuario &&
-                                        ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null) 
-                                  select new
-                                  {
-                                      Prestamo = prestamo,
+            var prestamos = await (from prestamo in _db.Prestamos
+                                   join deudor in _db.Deudores on prestamo.IdDeudor equals deudor.Id
 
-                                  })
+                                   where prestamo.IdUsuario == idUsuario &&
+                                         ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
+                                   select new
+                                   {
+                                       Prestamo = prestamo,
+                                       Deudor = deudor,
+
+
+                                   })
                                                   .OrderByDescending(p => p.Prestamo.FechaPrestamo)
                                                   .Skip((pagina) * registros)
                                                   .Take(registros)
@@ -29,10 +35,11 @@ namespace Servicios.Gasto
 
             var prestamoResponses = prestamos.Select(p => new PrestamoResponse
             {
-                Descripcion = p.Prestamo.Descripcion.Trim(),
+                Descripcion = p.Deudor == null ? p.Prestamo.Descripcion.Trim() : $"{SetearPrestamo(p.Prestamo.IdDeudor, idUsuario)}{p.Deudor.Nombres.Trim()} {LLenarDescripcion(p.Prestamo.Descripcion)}",
                 FechaPrestamo = p.Prestamo.FechaPrestamo,
                 Id = p.Prestamo.Id,
                 Prestamo = p.Prestamo.MontoPrestamo,
+                IdDeudor = idUsuario == p.Prestamo.IdDeudor ? 0 : 1,
             }).ToList();
 
             if (prestamoResponses.Count == 0)
@@ -44,6 +51,26 @@ namespace Servicios.Gasto
             {
                 Codigo = CodigoRespuesta.Exito,
                 Data = prestamoResponses
+            };
+        }
+
+        private string LLenarDescripcion(string desripcion)
+        {
+            return string.IsNullOrEmpty(desripcion) ? string.Empty : $"para {desripcion}";
+        }
+        private string SetearPrestamo(int idDeudor, int idUsuario)
+        {
+            return idDeudor == idUsuario ? string.Empty : "Prestamo a ";
+
+        }
+        public async Task<GeneralResponse> ConsultarTotal(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        {
+            var total = await _db.Prestamos.Where(prestamo => ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)).SumAsync(p => p.MontoPrestamo);
+
+            return new GeneralResponse
+            {
+                Codigo = CodigoRespuesta.Exito,
+                Total = total
             };
         }
 

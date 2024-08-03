@@ -72,6 +72,7 @@ namespace Servicios.Prestamo
                 var prestamos = await (from prestamo in _db.Prestamos
                                        join deudor in _db.Deudores on prestamo.IdDeudor equals deudor.Id
                                        join abono in _db.Abonos on prestamo.Id equals abono.IdPrestamo into abonosGroup
+                                      
                                        where prestamo.IdUsuario == idUsuario &&
                                              prestamo.PagoCompleto == false &&
                                              (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&

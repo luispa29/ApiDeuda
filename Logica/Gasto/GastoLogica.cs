@@ -39,6 +39,11 @@ namespace Logica.Gasto
 
                 GeneralResponse consulta = await _gasto.ConsultarGastos(pagina, registros, idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
 
+                if(consulta.Codigo == CodigoRespuesta.Exito && pagina == 0)
+                {
+                    GeneralResponse totalGasto =  await _gasto.ConsultarTotal(idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
+                    consulta.Total = totalGasto.Total;
+                }
                 consulta.Token = token;
                 return consulta;
 

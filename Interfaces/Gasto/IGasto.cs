@@ -19,5 +19,6 @@ namespace Interfaces.Gasto
         Task<bool> Existe(int idGasto, int idUsuario);
 
         Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
+        Task<GeneralResponse> ConsultarTotal(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
     }
 }
