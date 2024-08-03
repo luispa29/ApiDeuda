@@ -8,6 +8,8 @@ namespace Utilidades.Helper
 {
     public class MensajeGastoHelper
     {
+        public static readonly string Registrado = "El gasto se registró con éxito";
+
     }
 }
 
