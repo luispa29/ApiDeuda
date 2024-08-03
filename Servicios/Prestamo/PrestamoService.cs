@@ -28,7 +28,7 @@ namespace Servicios.Prestamo
                                       where prestamo.IdUsuario == idUsuario &&
                                       (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
                                       ((prestamo.FechaPago >= fechaDesde && prestamo.FechaPago <= fechaHasta) || fechaDesde == null || fechaHasta == null) &&
-                                      !ignorar.Contains(prestamo.IdDeudor)
+                                      !ignorar.Contains(prestamo.IdDeudor) && prestamo.Propio == false
                                       select new
                                       {
                                           Prestamos = prestamo,
@@ -75,7 +75,7 @@ namespace Servicios.Prestamo
                                        where prestamo.IdUsuario == idUsuario &&
                                              prestamo.PagoCompleto == false &&
                                              (prestamo.IdDeudor == IdDeudor || IdDeudor == null) &&
-                                             ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
+                                             ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null) && prestamo.Propio == false
                                        select new
                                        {
                                            Prestamo = prestamo,
@@ -231,7 +231,7 @@ namespace Servicios.Prestamo
 
                 DateOnly fechaPago = Formatos.ObtenerFechaHoraLocal();
 
-                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null && p.IdUsuario == idUsuario && !ignorar.Contains(p.IdDeudor)).CountAsync();
+                porCobrar = await _db.Prestamos.Where(p => p.PagoCompleto == false && p.FechaPago <= fechaPago && p.FechaPago != null && p.IdUsuario == idUsuario && !ignorar.Contains(p.IdDeudor) && p.Propio == false).CountAsync();
                 return porCobrar;
             }
             catch (Exception)
@@ -255,7 +255,8 @@ namespace Servicios.Prestamo
                     FechaPago = prestamo.FechaPago != null ? Formatos.DevolverSoloFecha((global::System.DateTime)prestamo.FechaPago) : null,
                     FechaPrestamo = Formatos.ObtenerFechaHoraLocal(),
                     IdUsuario = idUsuario,
-                    PagoCompleto = false
+                    PagoCompleto = false,
+                    Propio = false
                 });
 
                 await _db.SaveChangesAsync();
