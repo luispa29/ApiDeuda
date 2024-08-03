@@ -11,6 +11,6 @@ namespace Interfaces.Gasto
 
         Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta);
 
-        Task<GeneralResponse> Eliminar(int idPrestamo, string token);
+        Task<GeneralResponse> Eliminar(int idGasto, string token);
     }
 }

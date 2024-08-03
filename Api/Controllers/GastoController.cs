@@ -20,13 +20,20 @@ namespace Api.Controllers
             return Ok(await _gasto.Registrar(gasto, token));
         }
 
-
         [HttpPut("Editar")]
         public async Task<IActionResult> Editar(PrestamoQuery gasto)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _gasto.Editar(gasto, token));
+        }
+
+        [HttpDelete("Eliminar")]
+        public async Task<IActionResult> Eliminar(int idGasto)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _gasto.Eliminar(idGasto, token));
         }
 
     }

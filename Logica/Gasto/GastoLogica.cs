@@ -49,9 +49,29 @@ namespace Logica.Gasto
             }
         }
 
-        public Task<GeneralResponse> Eliminar(int idPrestamo, string token)
+        public async Task<GeneralResponse> Eliminar(int idGasto, string token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                token = _usuario.GenerarToken(correo);
+
+                bool existe = await _gasto.Existe(idGasto, idUsuario);
+
+                if (!existe) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajeGastoHelper.NoExiste); }
+
+                GeneralResponse eliminar = await _gasto.Eliminar(idGasto, idUsuario);
+                eliminar.Token = token;
+
+                return eliminar;
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
 
         public async Task<GeneralResponse> Registrar(PrestamoQuery gasto, string token)

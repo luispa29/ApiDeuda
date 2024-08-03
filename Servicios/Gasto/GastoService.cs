@@ -46,9 +46,27 @@ namespace Servicios.Gasto
             }
         }
 
-        public Task<GeneralResponse> Eliminar(int idGasto, int idUsuario)
+        public async Task<GeneralResponse> Eliminar(int idGasto, int idUsuario)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var eliminar = await _db.Prestamos.Where(p => p.Id == idGasto && p.IdUsuario == idUsuario).FirstOrDefaultAsync();
+
+                if (eliminar == null)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeGastoHelper.NoExiste);
+                }
+
+                _db.Remove(eliminar);
+                await _db.SaveChangesAsync();
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeGastoHelper.Eliminado);
+            }
+            catch (Exception)
+            {
+
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
 
         public async Task<bool> Existe(int idGasto, int idUsuario)
