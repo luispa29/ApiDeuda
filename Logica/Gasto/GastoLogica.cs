@@ -24,9 +24,29 @@ namespace Logica.Gasto
             throw new NotImplementedException();
         }
 
-        public Task<GeneralResponse> Editar(PrestamoQuery gasto, string token)
+        public async Task<GeneralResponse> Editar(PrestamoQuery gasto, string token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                token = _usuario.GenerarToken(correo);
+
+                bool existe = await _gasto.Existe(gasto.Id, idUsuario);
+
+                if (!existe) { return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajeGastoHelper.NoExiste); }
+
+                    GeneralResponse editar = await _gasto.Editar(gasto, idUsuario);
+                    editar.Token = token;
+
+                    return editar;
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
 
         public Task<GeneralResponse> Eliminar(int idPrestamo, string token)
