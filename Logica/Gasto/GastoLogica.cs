@@ -19,9 +19,34 @@ namespace Logica.Gasto
         private readonly IUsuario _usuario = usuario;
         private readonly IGasto _gasto = gasto;
 
-        public Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta)
+        public async Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                token = _usuario.GenerarToken(correo);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                DateOnly? fechaDesdeConsulta = null;
+                DateOnly? fechaHastaConsulta = null;
+
+                if (fechaDesde != null && fechaHasta != null)
+                {
+                    fechaDesdeConsulta = Formatos.DevolverSoloFecha((DateTime)fechaDesde);
+                    fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);
+                }
+
+                GeneralResponse consulta = await _gasto.ConsultarGastos(pagina, registros, idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
+
+                consulta.Token = token;
+                return consulta;
+
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
 
         public async Task<GeneralResponse> Editar(PrestamoQuery gasto, string token)

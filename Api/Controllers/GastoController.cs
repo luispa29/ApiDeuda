@@ -36,5 +36,12 @@ namespace Api.Controllers
             return Ok(await _gasto.Eliminar(idGasto, token));
         }
 
+        [HttpGet("Consultar")]
+        public async Task<IActionResult> Consultar(int pagina, int registros, DateTime? fechaDesde, DateTime? fechaHasta)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _gasto.Consultar(pagina, registros, token, fechaDesde, fechaHasta));
+        }
     }
 }

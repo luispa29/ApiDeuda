@@ -2,24 +2,49 @@
 using Interfaces.Gasto;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilidades.Helper;
 using Utilidades;
-using Interfaces.Prestamo;
 using Microsoft.EntityFrameworkCore;
+using Modelos.Response.Prestamo;
 
 namespace Servicios.Gasto
 {
     public class GastoService(AppDeudaContext db) : IGasto
     {
         private readonly AppDeudaContext _db = db;
-        public Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        public async Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
-            throw new NotImplementedException();
+            var prestamos = await(from prestamo in _db.Prestamos
+                                  where prestamo.IdUsuario == idUsuario &&
+                                        ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null) 
+                                  select new
+                                  {
+                                      Prestamo = prestamo,
+
+                                  })
+                                                  .OrderByDescending(p => p.Prestamo.FechaPrestamo)
+                                                  .Skip((pagina) * registros)
+                                                  .Take(registros)
+                                                  .ToListAsync();
+
+            var prestamoResponses = prestamos.Select(p => new PrestamoResponse
+            {
+                Descripcion = p.Prestamo.Descripcion.Trim(),
+                FechaPrestamo = p.Prestamo.FechaPrestamo,
+                Id = p.Prestamo.Id,
+                Prestamo = p.Prestamo.MontoPrestamo,
+            }).ToList();
+
+            if (prestamoResponses.Count == 0)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeGastoHelper.NoHayGastos);
+            }
+
+            return new GeneralResponse
+            {
+                Codigo = CodigoRespuesta.Exito,
+                Data = prestamoResponses
+            };
         }
 
         public async Task<GeneralResponse> Editar(PrestamoQuery gasto, int idUsuario)
