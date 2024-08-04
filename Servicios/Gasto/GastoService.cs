@@ -35,7 +35,7 @@ namespace Servicios.Gasto
 
             var prestamoResponses = prestamos.Select(p => new PrestamoResponse
             {
-                Descripcion = p.Deudor == null ? p.Prestamo.Descripcion.Trim() : $"{SetearPrestamo(p.Prestamo.IdDeudor, idUsuario)}{p.Deudor.Nombres.Trim()} {LLenarDescripcion(p.Prestamo.Descripcion)}",
+                Descripcion = p.Deudor == null ? p.Prestamo.Descripcion.Trim() : $"{SetearPrestamo(p.Prestamo.IdDeudor, idUsuario)}{SetearDeudor(p.Deudor.Nombres, p.Prestamo.Propio)}{LLenarDescripcion(p.Prestamo.Descripcion, p.Prestamo.Propio)}",
                 FechaPrestamo = p.Prestamo.FechaPrestamo,
                 Id = p.Prestamo.Id,
                 Prestamo = p.Prestamo.MontoPrestamo,
@@ -54,9 +54,14 @@ namespace Servicios.Gasto
             };
         }
 
-        private string LLenarDescripcion(string desripcion)
+
+        private string LLenarDescripcion(string desripcion,bool? propio)
         {
-            return string.IsNullOrEmpty(desripcion) ? string.Empty : $"para {desripcion}";
+            return (bool)propio && !string.IsNullOrEmpty(desripcion)   ? desripcion : !string.IsNullOrEmpty(desripcion) ? $" para {desripcion}" : string.Empty;
+        } 
+        private string SetearDeudor(string deudor, bool? propio)
+        {
+            return (bool)propio ? string.Empty : deudor;
         }
         private string SetearPrestamo(int idDeudor, int idUsuario)
         {
