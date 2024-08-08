@@ -49,7 +49,7 @@ namespace Servicios.Deudor
                                       select new
                                       {
                                           Deudor = deudor,
-                                          Prestamo = prestamoGroup.DefaultIfEmpty().Where(p => p.PagoCompleto == false),
+                                          Prestamo = prestamoGroup.DefaultIfEmpty().Where(p => p.PagoCompleto == false && p.Propio == false ),
                                       }
                                       )
                                       .OrderBy(d => d.Deudor.Nombres)
