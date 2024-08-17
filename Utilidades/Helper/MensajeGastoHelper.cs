@@ -13,6 +13,7 @@ namespace Utilidades.Helper
         public static readonly string Actualizado = "El gasto se actualizó con éxito";
         public static readonly string Eliminado = "El gasto se eliminó con éxito";
         public static readonly string NoHayGastos = "No hay gastos registrados";
+        public static readonly string RptNombre = "Reporte de gasto";
 
 
     }

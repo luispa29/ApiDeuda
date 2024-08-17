@@ -8,6 +8,8 @@ namespace Utilidades
 {
     public class Formatos
     {
+       public static string[] formats = { "dd/MM/yyyy" };
+
         public static DateOnly ObtenerFechaHoraLocal()
         {
             string timeZoneId = "Eastern Standard Time";
@@ -24,6 +26,13 @@ namespace Utilidades
         {
             texto = texto.Replace(remplazar, textoReemplazo);
             return texto;
+        }
+        public static DateOnly FormatearFecha (string fecha)
+        {
+            fecha = ReemplazarTexto(fecha, " 12:00:00 a. m.", string.Empty);
+            fecha = ReemplazarTexto(fecha, " 00:00:00 a. m.", string.Empty);
+            fecha = ReemplazarTexto(fecha, " 00:00:00", string.Empty);
+            return DateOnly.ParseExact(fecha,formats);
         }
 
         public static string CodigoCompartido()

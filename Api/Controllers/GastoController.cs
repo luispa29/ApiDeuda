@@ -42,6 +42,13 @@ namespace Api.Controllers
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
 
             return Ok(await _gasto.Consultar(pagina, registros, token, fechaDesde, fechaHasta));
+        } 
+        [HttpGet("Reporte")]
+        public async Task<IActionResult> Reporte(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+            
+            return Ok(await _gasto.RptGasto(token,fechaDesde,fechaHasta));
         }
     }
 }

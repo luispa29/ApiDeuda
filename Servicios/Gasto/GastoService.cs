@@ -8,69 +8,84 @@ using Microsoft.EntityFrameworkCore;
 using Modelos.Response.Prestamo;
 using Microsoft.Win32;
 using Interfaces.Deudor.Service;
+using Microsoft.Extensions.Options;
+using Microsoft.Data.SqlClient;
 
 namespace Servicios.Gasto
 {
-    public class GastoService(AppDeudaContext db) : IGasto
+    public class GastoService(AppDeudaContext db, IOptions<AppSettings> options) : IGasto
     {
         private readonly AppDeudaContext _db = db;
         public async Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
-            var prestamos = await (from prestamo in _db.Prestamos
-                                   join deudor in _db.Deudores on prestamo.IdDeudor equals deudor.Id
-
-                                   where prestamo.IdUsuario == idUsuario &&
-                                         ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)
-                                   select new
-                                   {
-                                       Prestamo = prestamo,
-                                       Deudor = deudor,
-
-
-                                   })
-                                                  .OrderByDescending(p => p.Prestamo.FechaPrestamo)
-                                                  .Skip((pagina) * registros)
-                                                  .Take(registros)
-                                                  .ToListAsync();
-
-            var prestamoResponses = prestamos.Select(p => new PrestamoResponse
+            try
             {
-                Descripcion = p.Deudor == null ? p.Prestamo.Descripcion.Trim() : $"{SetearPrestamo(p.Prestamo.IdDeudor, idUsuario)}{SetearDeudor(p.Deudor.Nombres, p.Prestamo.Propio)}{LLenarDescripcion(p.Prestamo.Descripcion, p.Prestamo.Propio)}",
-                FechaPrestamo = p.Prestamo.FechaPrestamo,
-                Id = p.Prestamo.Id,
-                Prestamo = p.Prestamo.MontoPrestamo,
-                IdDeudor = idUsuario == p.Prestamo.IdDeudor ? 0 : 1,
-            }).ToList();
+                var prestamos = await (from prestamo in _db.Prestamos
+                                       join deudor in _db.Deudores on prestamo.IdDeudor equals deudor.Id
 
-            if (prestamoResponses.Count == 0)
+                                       where prestamo.IdUsuario == idUsuario &&
+                                             ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null) && prestamo.PagoCompleto == false
+                                       select new
+                                       {
+                                           Prestamo = prestamo,
+                                           Deudor = deudor,
+
+
+                                       })
+                                            .OrderByDescending(p => p.Prestamo.FechaPrestamo).ThenByDescending(p => p.Prestamo.Id)
+                                            .Skip((pagina) * registros)
+                                            .Take(registros)
+                                            .ToListAsync();
+
+                var prestamoResponses = prestamos.Select(p => new PrestamoResponse
+                {
+                    Descripcion = p.Deudor == null ? p.Prestamo.Descripcion.Trim() : $"{SetearPrestamo(p.Prestamo.IdDeudor, idUsuario)}{SetearDeudor(p.Deudor.Nombres, p.Prestamo.Propio)}{LLenarDescripcion(p.Prestamo.Descripcion, p.Prestamo.Propio)}",
+                    FechaPrestamo = p.Prestamo.FechaPrestamo,
+                    Id = p.Prestamo.Id,
+                    Prestamo = p.Prestamo.MontoPrestamo,
+                    IdDeudor = (bool)p.Prestamo.Propio ? 0 : 1,
+                }).ToList();
+
+                if (prestamoResponses.Count == 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeGastoHelper.NoHayGastos);
+                }
+
+                return new GeneralResponse
+                {
+                    Codigo = CodigoRespuesta.Exito,
+                    Data = prestamoResponses
+                };
+            }
+            catch (Exception)
             {
-                return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeGastoHelper.NoHayGastos);
+
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
 
-            return new GeneralResponse
-            {
-                Codigo = CodigoRespuesta.Exito,
-                Data = prestamoResponses
-            };
         }
 
 
-        private string LLenarDescripcion(string desripcion,bool? propio)
+
+        private static string LLenarDescripcion(string desripcion, bool? propio)
         {
-            return (bool)propio && !string.IsNullOrEmpty(desripcion)   ? desripcion : !string.IsNullOrEmpty(desripcion) ? $" para {desripcion}" : string.Empty;
-        } 
-        private string SetearDeudor(string deudor, bool? propio)
+            return (bool)propio && !string.IsNullOrEmpty(desripcion) ? desripcion : !string.IsNullOrEmpty(desripcion) ? $" para {desripcion}" : string.Empty;
+        }
+
+        private static string SetearDeudor(string deudor, bool? propio)
         {
             return (bool)propio ? string.Empty : deudor;
         }
-        private string SetearPrestamo(int idDeudor, int idUsuario)
+
+        private static string SetearPrestamo(int idDeudor, int idUsuario)
         {
             return idDeudor == idUsuario ? string.Empty : "Prestamo a ";
 
         }
+
         public async Task<GeneralResponse> ConsultarTotal(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
-            var total = await _db.Prestamos.Where(prestamo => ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null)).SumAsync(p => p.MontoPrestamo);
+            var total = await _db.Prestamos.Where(prestamo => ((prestamo.FechaPrestamo >= fechaDesde && prestamo.FechaPrestamo <= fechaHasta) || fechaDesde == null || fechaHasta == null) && prestamo.PagoCompleto == false && prestamo.IdUsuario == idUsuario).SumAsync(p => p.MontoPrestamo);
 
             return new GeneralResponse
             {
@@ -149,7 +164,7 @@ namespace Servicios.Gasto
                     FechaPrestamo = Formatos.ObtenerFechaHoraLocal(),
                     IdUsuario = idUsuario,
                     IdDeudor = idUsuario,
-                    PagoCompleto = true,
+                    PagoCompleto = false,
                     MontoPrestamo = gasto.MontoPrestamo,
                     Propio = true
                 }
@@ -159,6 +174,59 @@ namespace Servicios.Gasto
             }
             catch (Exception)
             {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
+        public async Task<GeneralResponse> RptGastos(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
+        {
+            try
+            {
+                string[] formats = { "dd/MM/yyyy" };
+                var cadena = options.Value.DefaultConnection;
+                List<PrestamoResponse> gastos = new();
+                using (var conexion = new SqlConnection(cadena))
+                {
+                    await conexion.OpenAsync();
+                    string consulta = @"Select d.Nombres, p.IdDeudor,p.IdUsuario,p.Descripcion,p.FechaPrestamo, p.MontoPrestamo,p.propio  from Prestamos p
+                                        inner join Deudores d on p.IdDeudor = d.id
+                                        where p.IdUsuario = @idUsuario and p.FechaPrestamo > = @desde and p.FechaPrestamo <= @hasta and p.PagoCompleto = 0
+                                        order by  p.FechaPrestamo desc, p.Id desc";
+                    using (var command = new SqlCommand(consulta, conexion))
+                    {
+                        command.Parameters.AddWithValue("@idUsuario", idUsuario);
+                        command.Parameters.AddWithValue("@desde", fechaDesde);
+                        command.Parameters.AddWithValue("@hasta", fechaHasta);
+
+                        using SqlDataReader reader = await command.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            gastos.Add(new PrestamoResponse
+                            {
+                                Descripcion = $"{SetearPrestamo(Convert.ToInt32(reader["IdDeudor"].ToString()), idUsuario)}{SetearDeudor(reader["Nombres"].ToString(), Convert.ToBoolean(reader["propio"].ToString()))}{LLenarDescripcion(reader["Descripcion"].ToString(), Convert.ToBoolean(reader["propio"].ToString()))}",
+                                FechaPrestamo = Formatos.FormatearFecha(reader["FechaPrestamo"].ToString()),
+                                Prestamo = Convert.ToDecimal(reader["MontoPrestamo"])
+                            });
+                           
+                        }
+                    }
+                    await conexion.CloseAsync();
+                }
+
+                if (gastos.Count == 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajeGastoHelper.NoHayGastos);
+                }
+
+                return new GeneralResponse
+                {
+                    Codigo = CodigoRespuesta.Exito,
+                    Data = gastos
+                };
+            }
+            catch (Exception ex)
+            {
+
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
