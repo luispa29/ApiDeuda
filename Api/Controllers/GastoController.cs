@@ -1,10 +1,12 @@
 ﻿using ApiDeuda;
 using Interfaces.Gasto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Modelos.Query.Prestamo;
 
 namespace Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class GastoController(IGastoLogica gasto) : ControllerBase
@@ -43,6 +45,7 @@ namespace Api.Controllers
 
             return Ok(await _gasto.Consultar(pagina, registros, token, fechaDesde, fechaHasta));
         } 
+       
         [HttpGet("Reporte")]
         public async Task<IActionResult> Reporte(DateTime fechaDesde, DateTime fechaHasta)
         {

@@ -188,7 +188,7 @@ namespace Servicios.Gasto
                 using (var conexion = new SqlConnection(cadena))
                 {
                     await conexion.OpenAsync();
-                    string consulta = @"Select d.Nombres, p.IdDeudor,p.IdUsuario,p.Descripcion,p.FechaPrestamo, p.MontoPrestamo,p.propio  from Prestamos p
+                    string consulta = @"Select d.Nombres, p.IdDeudor,p.IdUsuario,p.Descripcion,convert(varchar, p.FechaPrestamo,103) FechaPrestamo, p.MontoPrestamo,p.propio  from Prestamos p
                                         inner join Deudores d on p.IdDeudor = d.id
                                         where p.IdUsuario = @idUsuario and p.FechaPrestamo > = @desde and p.FechaPrestamo <= @hasta and p.PagoCompleto = 0
                                         order by  p.FechaPrestamo desc, p.Id desc";

@@ -143,7 +143,7 @@ namespace Logica.Gasto
                 DateOnly fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);
 
                 var respuesta = await _gasto.RptGastos(idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
-
+                respuesta.Token = token;
                 if (respuesta.Codigo == CodigoRespuesta.Exito)
                 {
                     List<PrestamoResponse> data = respuesta.Data as List<PrestamoResponse>;
@@ -168,7 +168,8 @@ namespace Logica.Gasto
                     return new GeneralResponse
                     {
                         Codigo = CodigoRespuesta.Exito,
-                        Data = Convert.ToBase64String(stream.ToArray())
+                        Data = Convert.ToBase64String(stream.ToArray()),
+                        Token = token
                     };
                 }
                 else
@@ -176,7 +177,7 @@ namespace Logica.Gasto
                     return respuesta;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
