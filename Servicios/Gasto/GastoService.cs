@@ -205,7 +205,8 @@ namespace Servicios.Gasto
                             {
                                 Descripcion = $"{SetearPrestamo(Convert.ToInt32(reader["IdDeudor"].ToString()), idUsuario)}{SetearDeudor(reader["Nombres"].ToString(), Convert.ToBoolean(reader["propio"].ToString()))}{LLenarDescripcion(reader["Descripcion"].ToString(), Convert.ToBoolean(reader["propio"].ToString()))}",
                                 FechaPrestamo = Formatos.FormatearFecha(reader["FechaPrestamo"].ToString()),
-                                Prestamo = Convert.ToDecimal(reader["MontoPrestamo"])
+                                Prestamo = Convert.ToDecimal(reader["MontoPrestamo"]),
+                                Propio = Convert.ToBoolean(reader["propio"].ToString())
                             });
                            
                         }

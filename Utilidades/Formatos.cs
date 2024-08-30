@@ -21,6 +21,10 @@ namespace Utilidades
         {
             return new DateOnly(fecha.Year, fecha.Month, fecha.Day);
         }
+        public static DateOnly DevolverPrimerDiaMes(DateOnly fecha)
+        {
+            return new DateOnly(fecha.Year, fecha.Month, 1);
+        }
 
         public static string ReemplazarTexto(string texto, string remplazar, string textoReemplazo)
         {

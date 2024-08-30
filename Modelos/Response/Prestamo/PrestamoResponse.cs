@@ -14,5 +14,6 @@ namespace Modelos.Response.Prestamo
         public DateOnly FechaPrestamo { get; set; }
         public DateOnly? FechaPago { get; set; }
         public bool? Completo { get; set; }
+        public bool Propio { get; set; }
     }
 }

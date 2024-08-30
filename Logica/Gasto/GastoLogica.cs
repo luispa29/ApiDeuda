@@ -1,22 +1,16 @@
 ﻿
-using Interfaces.Deudor.Service;
 using Interfaces.Gasto;
 using Interfaces.Prestamo;
 using Interfaces.Usuario.Services;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilidades.Helper;
 using Utilidades;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 using MigraDoc.DocumentObjectModel.Tables;
-using System.Drawing;
 using Modelos.Response.Prestamo;
-using System.Linq.Expressions;
+using Modelos.Response.Gasto;
 
 namespace Logica.Gasto
 {
@@ -148,11 +142,11 @@ namespace Logica.Gasto
                 {
                     List<PrestamoResponse> data = respuesta.Data as List<PrestamoResponse>;
 
-                    Document document = new ();
+                    Document document = new();
                     Section seccion1 = document.AddSection();
 
                     var gasto = data.Sum(d => d.Prestamo);
-                    
+
                     PdfCabecera(ref seccion1, fechaDesdeConsulta, fechaHastaConsulta, gasto);
                     PdfCuerpo(ref seccion1, data);
 
@@ -160,7 +154,7 @@ namespace Logica.Gasto
                     {
                         Document = document
                     };
-                   
+
                     renderer.RenderDocument();
                     renderer.PdfDocument.Save(stream, false);
                     stream.Position = 0;
@@ -183,7 +177,7 @@ namespace Logica.Gasto
             }
         }
 
-        private void PdfCabecera(ref Section section, DateOnly desde, DateOnly hasta, decimal gasto)
+        private static void PdfCabecera(ref Section section, DateOnly desde, DateOnly hasta, decimal gasto)
         {
             Paragraph cabecera = section.AddParagraph();
             cabecera.Format.Alignment = ParagraphAlignment.Center;
@@ -223,7 +217,7 @@ namespace Logica.Gasto
 
         }
 
-        private void AgregarCelda(ref Row fila, string valor, int columna, bool bold, bool ultimo)
+        private static void AgregarCelda(ref Row fila, string valor, int columna, bool bold, bool ultimo)
         {
 
             Paragraph parrafo = new();
@@ -242,7 +236,7 @@ namespace Logica.Gasto
             fila.Cells[columna].Add(parrafo);
         }
 
-        private void PdfCuerpo(ref Section section, List<PrestamoResponse> data)
+        private static void PdfCuerpo(ref Section section, List<PrestamoResponse> data)
         {
             Table tabla = section.AddTable();
             tabla.AddColumn(70);
@@ -269,6 +263,49 @@ namespace Logica.Gasto
                 AgregarCelda(ref fila, gasto.Descripcion.Trim(), 1, false, false);
                 AgregarCelda(ref fila, $"${gasto.Prestamo}", 2, false, false);
             }
+        }
+
+        public async Task<GeneralResponse> ResumenGastos(string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                token = _usuario.GenerarToken(correo);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                DateOnly fechaHastaConsulta = Formatos.ObtenerFechaHoraLocal();
+                DateOnly fechaDesdeConsulta = Formatos.DevolverPrimerDiaMes(fechaHastaConsulta);
+
+                var respuesta = await _gasto.RptGastos(idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
+
+                respuesta.Token = token;
+
+                if (respuesta.Codigo != CodigoRespuesta.Exito) return respuesta;
+
+                List<PrestamoResponse>? data = respuesta.Data as List<PrestamoResponse>;
+
+                ResumenResponse resumen = new()
+                {
+                    Prestamo = data?.Where(d => !d.Propio).Sum(d => d.Prestamo),
+                    Propio = data?.Where(d => d.Propio).Sum(d => d.Prestamo),
+                    Resumen =
+                            [.. data?
+                                 .GroupBy(p => p.Descripcion)
+                                 .Select(g => new Resumen { Descripcion = g.Key,
+                                                            Total = g.Sum(p => p.Prestamo)
+                                                          }
+                                        )
+                                 .OrderByDescending(d => d.Total)
+                            ]
+                };
+
+                respuesta.Data = resumen;
+                return respuesta;
+            }
+
+            catch { return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError); }
         }
     }
 }
