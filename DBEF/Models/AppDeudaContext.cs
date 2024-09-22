@@ -23,7 +23,7 @@ public partial class AppDeudaContext : DbContext
 
     public virtual DbSet<Prestamo> Prestamos { get; set; }
 
-    public virtual DbSet<Prueba> Pruebas { get; set; }
+    public virtual DbSet<Presupuesto> Presupuestos { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
@@ -89,13 +89,15 @@ public partial class AppDeudaContext : DbContext
                 .HasConstraintName("FK_Prestamos_usuario");
         });
 
-        modelBuilder.Entity<Prueba>(entity =>
+        modelBuilder.Entity<Presupuesto>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("prueba", "Chains");
+            entity.Property(e => e.Presupuesto1)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Presupuesto");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Presupuestos)
+                .HasForeignKey(d => d.UsuarioId)
+                .HasConstraintName("FK_Presupuestos_Usuario");
         });
 
         modelBuilder.Entity<Usuario>(entity =>

@@ -18,4 +18,6 @@ public partial class Usuario
     public virtual ICollection<Ignorado> Ignorados { get; set; } = new List<Ignorado>();
 
     public virtual ICollection<Prestamo> Prestamos { get; set; } = new List<Prestamo>();
+
+    public virtual ICollection<Presupuesto> Presupuestos { get; set; } = new List<Presupuesto>();
 }
