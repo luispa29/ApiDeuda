@@ -39,5 +39,24 @@ namespace Servicios.Presupuesto
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
+
+        public async Task<GeneralResponse> Actualizar(int usuarioId, int mes, int anio, decimal preupuesto)
+        {
+            try
+            {
+                var actualizar = await _bd.Presupuestos.Where(p => p.UsuarioId == usuarioId && p.Mes == mes && p.Anio == anio).FirstOrDefaultAsync();
+                if (actualizar != null)
+                {
+                    actualizar.Presupuesto1 = preupuesto;
+                    await _bd.SaveChangesAsync();
+                }
+            }
+            catch (Exception)
+            {
+
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+            throw new NotImplementedException();
+        }
     }
 }
