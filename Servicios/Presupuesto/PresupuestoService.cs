@@ -1,11 +1,9 @@
 ﻿using DBEF.Models;
 using Interfaces.Presupuesto;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Modelos.Response;
+using Utilidades.Helper;
+using Utilidades;
 
 namespace Servicios.Presupuesto
 {
@@ -17,6 +15,29 @@ namespace Servicios.Presupuesto
         {
             try { return await _bd.Presupuestos.Where(p => p.UsuarioId == usuarioId && p.Mes == mes && p.Anio == anio).AnyAsync(); }
             catch (Exception) { return false; }
+        }
+
+        public async Task<GeneralResponse> Registrar(int usuarioId, int mes, int anio, decimal preupuesto)
+        {
+            try
+            {
+                await _bd.Presupuestos.AddAsync(new DBEF.Models.Presupuesto
+                {
+                    Anio = anio,
+                    Mes = mes,
+                    UsuarioId = usuarioId,
+                    Presupuesto1 = preupuesto
+                });
+
+                await _bd.SaveChangesAsync();
+               
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePresupuestoHelper.Registrado);
+            }
+            catch (Exception)
+            {
+
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
     }
 }
