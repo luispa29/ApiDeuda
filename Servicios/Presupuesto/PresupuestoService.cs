@@ -11,10 +11,10 @@ namespace Servicios.Presupuesto
     {
         private readonly AppDeudaContext _bd = bd;
 
-        public async Task<bool> ExistePresupuesto(int usuarioId, int mes, int anio)
+        public async Task<decimal> Obtener(int usuarioId, int mes, int anio)
         {
-            try { return await _bd.Presupuestos.Where(p => p.UsuarioId == usuarioId && p.Mes == mes && p.Anio == anio).AnyAsync(); }
-            catch (Exception) { return false; }
+            try { return await _bd.Presupuestos.Where(p => p.UsuarioId == usuarioId && p.Mes == mes && p.Anio == anio).Select(p=> p.Presupuesto1).FirstOrDefaultAsync();}
+            catch (Exception) { return 0; }
         }
 
         public async Task<GeneralResponse> Registrar(int usuarioId, int mes, int anio, decimal preupuesto)
