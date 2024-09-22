@@ -12,7 +12,7 @@ namespace Utilidades
 
         public static DateOnly ObtenerFechaHoraLocal()
         {
-            string timeZoneId = "Eastern Standard Time";
+            string timeZoneId = "SA Pacific Standard Time";
             DateTime horaActual = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, timeZoneId);
             return DevolverSoloFecha(horaActual);
         }

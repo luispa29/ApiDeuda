@@ -50,13 +50,15 @@ namespace Servicios.Presupuesto
                     actualizar.Presupuesto1 = preupuesto;
                     await _bd.SaveChangesAsync();
                 }
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePresupuestoHelper.Actualizado);
+
             }
             catch (Exception)
             {
 
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
-            throw new NotImplementedException();
         }
     }
 }

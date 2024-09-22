@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Modelos.Response;
+
 
 namespace Interfaces.Presupuesto
 {
-    public class IPresupuestoLogica
+    public interface IPresupuestoLogica
     {
+        Task<GeneralResponse> Registrar(string token, decimal presupuesto);
     }
 }
