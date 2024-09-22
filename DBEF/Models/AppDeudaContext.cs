@@ -97,6 +97,7 @@ public partial class AppDeudaContext : DbContext
 
             entity.HasOne(d => d.Usuario).WithMany(p => p.Presupuestos)
                 .HasForeignKey(d => d.UsuarioId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Presupuestos_Usuario");
         });
 
