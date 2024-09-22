@@ -11,6 +11,33 @@ namespace Logica.Presupueso
         private readonly IPresupuesto _presupuesto = presupuesto;
         private readonly IUsuario _usuario = usuario;
 
+        public async Task<GeneralResponse> Actualizar(string token, decimal presupuesto)
+        {
+            try
+            {
+                GeneralResponse actualizar = new();
+
+                DateOnly fecha = Formatos.ObtenerFechaHoraLocal();
+
+                string correo = _usuario.ObtenerCorreoToken(token);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                decimal presupuestoInicial = await _presupuesto.Obtener(idUsuario, fecha.Month, fecha.Year);
+
+                if(presupuestoInicial == 0) return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePresupuestoHelper.NoExiste);
+
+                actualizar =  await _presupuesto.Actualizar(idUsuario, fecha.Month, fecha.Year, presupuesto);
+                actualizar.Token = _usuario.GenerarToken(correo);
+
+                return actualizar;
+            }
+            catch (Exception)
+            {
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
         public async Task<GeneralResponse> Registrar(string token, decimal presupuesto)
         {
             try

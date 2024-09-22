@@ -4,6 +4,8 @@
     {
         public Decimal? Propio { get; set; }
         public Decimal? Prestamo { get; set; }
+        public decimal Presupuesto { get; set; }
+
         public List<Resumen>? Resumen { get; set; }
     }
 

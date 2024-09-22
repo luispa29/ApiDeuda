@@ -11,14 +11,13 @@ using MigraDoc.Rendering;
 using MigraDoc.DocumentObjectModel.Tables;
 using Modelos.Response.Prestamo;
 using Modelos.Response.Gasto;
+using Interfaces.Presupuesto;
 
 namespace Logica.Gasto
 {
-    public class GastoLogica(IGasto gasto, IUsuario usuario) : IGastoLogica
+    public class GastoLogica(IGasto _gasto, IUsuario _usuario, IPresupuesto _presupuesto) : IGastoLogica
     {
-        private readonly IUsuario _usuario = usuario;
-        private readonly IGasto _gasto = gasto;
-
+    
         public async Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             try
@@ -277,12 +276,13 @@ namespace Logica.Gasto
 
                 DateOnly fechaHastaConsulta = Formatos.ObtenerFechaHoraLocal();
                 DateOnly fechaDesdeConsulta = Formatos.DevolverPrimerDiaMes(fechaHastaConsulta);
+                decimal presupuesto = await _presupuesto.Obtener(idUsuario, fechaDesdeConsulta.Month, fechaDesdeConsulta.Year);
 
                 var respuesta = await _gasto.RptGastos(idUsuario, fechaDesdeConsulta, fechaHastaConsulta);
 
                 respuesta.Token = token;
 
-                if (respuesta.Codigo != CodigoRespuesta.Exito) return respuesta;
+                if (respuesta.Codigo != CodigoRespuesta.Exito) { respuesta.Data = presupuesto; return respuesta; }
 
                 List<PrestamoResponse>? data = respuesta.Data as List<PrestamoResponse>;
 
@@ -290,6 +290,7 @@ namespace Logica.Gasto
                 {
                     Prestamo = data?.Where(d => !d.Propio).Sum(d => d.Prestamo),
                     Propio = data?.Where(d => d.Propio).Sum(d => d.Prestamo),
+                    Presupuesto = presupuesto,
                     Resumen =
                             [.. data?
                                  .GroupBy(p => p.Descripcion)
@@ -300,8 +301,8 @@ namespace Logica.Gasto
                                  .OrderByDescending(d => d.Total)
                             ]
                 };
-
                 respuesta.Data = resumen;
+
                 return respuesta;
             }
 

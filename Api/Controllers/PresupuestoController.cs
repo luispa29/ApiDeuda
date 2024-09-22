@@ -20,5 +20,12 @@ namespace Api.Controllers
             return Ok(await _presupuesto.Registrar(token,presupuesto));
         }
 
+        [HttpPut("Actualizar")]
+        public async Task<IActionResult> Actualizar(decimal presupuesto)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+            return Ok(await _presupuesto.Actualizar(token,presupuesto));
+        }
+
     }
 }
