@@ -15,6 +15,9 @@ using Servicios.Prestamo;
 using Servicios.Usuarios;
 using Servicios.Gasto;
 using Logica.Gasto;
+using Interfaces.Presupuesto;
+using Servicios.Presupuesto;
+using Logica.Presupueso;
 
 namespace ApiDeuda
 {
@@ -59,6 +62,13 @@ namespace ApiDeuda
 
             services.AddScoped<IGasto, GastoService>();
             services.AddScoped<IGastoLogica, GastoLogica>();
+
+            #endregion
+            
+            #region Presupuesto
+
+            services.AddScoped<IPresupuesto, PresupuestoService>();
+            services.AddScoped<IPresupuestoLogica, PresupuestoLogica>();
 
             #endregion
 
