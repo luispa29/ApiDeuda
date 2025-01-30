@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.1.0" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.30.0" />
     <PackageReference Include="PDFsharp" Version="6.1.1" />
     <PackageReference Include="PDFsharp-MigraDoc" Version="6.1.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.MongoDB" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="8.1.0" />
   </ItemGroup>
 
