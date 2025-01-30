@@ -3,6 +3,7 @@ using DBEF.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 using Utilidades;
 
@@ -79,15 +80,17 @@ builder.Services.AddAuthentication(d =>
 
 Dependencias.AddDependencyDeclaration(builder.Services);
 
-
+IConfiguration config = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .Build();
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(config).CreateLogger();
+builder.Host.UseSerilog();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 

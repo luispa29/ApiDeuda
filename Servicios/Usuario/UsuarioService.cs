@@ -1,10 +1,12 @@
 ﻿using DBEF.Models;
 using Interfaces.Usuario.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Modelos.Response;
 using Modelos.Response.Usuario;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,12 +19,13 @@ namespace Servicios.Usuarios
     {
         private readonly AppDeudaContext _dbEF;
         private readonly AppSettings _appSettings;
+        private readonly ILogger<UsuarioService> _logger;
 
-
-        public UsuarioService(AppDeudaContext appDeudaContext, IOptions<AppSettings> appSettings)
+        public UsuarioService(AppDeudaContext appDeudaContext, IOptions<AppSettings> appSettings, ILogger<UsuarioService> logger)
         {
             _dbEF = appDeudaContext;
             _appSettings = appSettings.Value;
+            _logger = logger;
         }
 
         /// <summary>
@@ -43,7 +46,7 @@ namespace Servicios.Usuarios
                                                    .Skip((pagina) * registros)
                                                    .Take(registros)
                                                    .ToListAsync();
-
+              
                 if (usuarios.Count == 0 && pagina == 0)
                 {
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajesUsuariosHelper.NoHayUsuariosRegistrados);
@@ -54,8 +57,10 @@ namespace Servicios.Usuarios
 
                 return respuesta;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+               _logger.LogError(ex,ex.Message);
+
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
