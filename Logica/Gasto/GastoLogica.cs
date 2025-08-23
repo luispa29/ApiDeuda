@@ -164,8 +164,16 @@ namespace Logica.Gasto
 
                 #pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
                 IEnumerable<ClosedXML.Excel.IXLRangeRow> filas = worksheet.RangeUsed().RowsUsed().Skip(1);
-                #pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+#pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
 
+                var lastRow = worksheet.LastRowUsed().RowNumber();
+
+                int filasConDatos = worksheet.Rows(2, lastRow).Count(r => !r.Cells().All(c => string.IsNullOrWhiteSpace(c.GetString())));
+
+                if(filasConDatos== 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeGastoHelper.SinRegistros, errores);
+                }
                 DataTable gastos = FormatearTablaGastos();
 
                 int rowIndex = 2;
@@ -181,6 +189,7 @@ namespace Logica.Gasto
                     {
                         errores.Add($"Error en la fila {rowIndex}: {validar}");
                     }
+                    rowIndex++;
                 }
 
                 if (errores.Count > 0)
@@ -416,11 +425,11 @@ namespace Logica.Gasto
             }
             if (!DateTime.TryParse(fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString(), out DateTime fechaValida))
             {
-                error += " Por favor ingresar una fecha valida";
+                error += " | Por favor ingresar una fecha valida";
             }
             if (!decimal.TryParse(fila.Cell(cabecera.IndexOf("Valor") + 1).GetString(), out decimal valorValido))
             {
-                error += "Por favor ingresar un valor valido";
+                error += " | Por favor ingresar un valor valido";
             }
 
             return error;

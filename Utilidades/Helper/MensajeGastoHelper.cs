@@ -17,6 +17,7 @@ namespace Utilidades.Helper
         public static readonly string SinArchivo = "Por favor cargar el archivo";
         public static readonly string ArchivoIncorrecto = "Por favor cargue el archivo Correcto";
         public static readonly string RevisarArchivo = "Por favor revise los errores";
+        public static readonly string SinRegistros = "El archivo cargado no tiene registros";
 
 
     }
