@@ -1,4 +1,5 @@
-﻿using Modelos.Query.Prestamo;
+﻿using Microsoft.AspNetCore.Http;
+using Modelos.Query.Prestamo;
 using Modelos.Response;
 
 namespace Interfaces.Gasto
@@ -14,5 +15,7 @@ namespace Interfaces.Gasto
         Task<GeneralResponse> Eliminar(int idGasto, string token);
         Task<GeneralResponse> RptGasto(string token, DateTime fechaDesde, DateTime fechaHasta);
         Task<GeneralResponse> ResumenGastos(string token);
+        Task<GeneralResponse> CargaMasiva(IFormFile file, string token);
+
     }
 }

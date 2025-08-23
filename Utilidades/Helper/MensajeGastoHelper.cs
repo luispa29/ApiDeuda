@@ -14,6 +14,9 @@ namespace Utilidades.Helper
         public static readonly string Eliminado = "El gasto se eliminó con éxito";
         public static readonly string NoHayGastos = "No hay gastos registrados";
         public static readonly string RptNombre = "Reporte de gasto";
+        public static readonly string SinArchivo = "Por favor cargar el archivo";
+        public static readonly string ArchivoIncorrecto = "Por favor cargue el archivo Correcto";
+        public static readonly string RevisarArchivo = "Por favor revise los errores";
 
 
     }

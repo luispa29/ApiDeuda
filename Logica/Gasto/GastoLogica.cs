@@ -1,24 +1,28 @@
 ﻿
+using DocumentFormat.OpenXml.Bibliography;
 using Interfaces.Gasto;
 using Interfaces.Prestamo;
+using Interfaces.Presupuesto;
 using Interfaces.Usuario.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Tables;
+using MigraDoc.Rendering;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
-using MigraDoc.DocumentObjectModel;
-using MigraDoc.Rendering;
-using MigraDoc.DocumentObjectModel.Tables;
-using Modelos.Response.Prestamo;
 using Modelos.Response.Gasto;
-using Interfaces.Presupuesto;
-using Microsoft.Extensions.Logging;
+using Modelos.Response.Prestamo;
+using MongoDB.Driver.Linq;
+using System.Data;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Logica.Gasto
 {
     public class GastoLogica(IGasto _gasto, IUsuario _usuario, IPresupuesto _presupuesto, ILogger<GastoLogica> _logger) : IGastoLogica
     {
-    
+
         public async Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             try
@@ -127,6 +131,74 @@ namespace Logica.Gasto
             }
         }
 
+        public async Task<GeneralResponse> CargaMasiva(IFormFile file, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                token = _usuario.GenerarToken(correo);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+
+                if (file == null || file.Length == 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeGastoHelper.SinArchivo);
+                }
+
+                //ClosedXML.Excel.IXLWorksheet worksheet = await ObtenerArchivo(file);
+
+                using MemoryStream stream = new();
+                await file.CopyToAsync(stream);
+
+                using ClosedXML.Excel.XLWorkbook workbook = new ClosedXML.Excel.XLWorkbook(stream);
+                ClosedXML.Excel.IXLWorksheet worksheet = workbook.Worksheets.First();
+                List<string> cabecera = worksheet.Row(1).Cells().Select(c => c.GetString().Trim()).ToList();
+
+                if (!string.IsNullOrEmpty(ValidarColumnas(cabecera)))
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeGastoHelper.ArchivoIncorrecto);
+                }
+
+                List<string> errores = new();
+
+                #pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+                IEnumerable<ClosedXML.Excel.IXLRangeRow> filas = worksheet.RangeUsed().RowsUsed().Skip(1);
+                #pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
+
+                DataTable gastos = FormatearTablaGastos();
+
+                int rowIndex = 2;
+
+                foreach (var fila in filas)
+                {
+                    string validar = ValidarFila(fila, cabecera);
+                    if (string.IsNullOrEmpty(validar))
+                    {
+                        gastos.Rows.Add(SetearDatosFila(gastos, fila, idUsuario, cabecera));
+                    }
+                    else
+                    {
+                        errores.Add($"Error en la fila {rowIndex}: {validar}");
+                    }
+                }
+
+                if (errores.Count > 0)
+                {
+                    return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeGastoHelper.RevisarArchivo, errores);
+                }
+
+                GeneralResponse registrar = await _gasto.CargaMasiva(gastos);
+                registrar.Token = token;
+                return registrar;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
         public async Task<GeneralResponse> RptGasto(string token, DateTime fechaDesde, DateTime fechaHasta)
         {
             try
@@ -222,7 +294,7 @@ namespace Logica.Gasto
 
         }
 
-        private static void AgregarCelda(ref Row fila, string valor, int columna, bool bold, bool ultimo)
+        private static void AgregarCelda(ref MigraDoc.DocumentObjectModel.Tables.Row fila, string valor, int columna, bool bold, bool ultimo)
         {
 
             Paragraph parrafo = new();
@@ -317,6 +389,104 @@ namespace Logica.Gasto
                 _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
+        }
+
+
+        private static string ValidarColumnas(List<string> cabeceraArhivo)
+        {
+            List<string> cabecera = ["Fecha", "Descripcion", "Valor", "Tarjeta"];
+
+            bool valido = cabecera.SequenceEqual(cabeceraArhivo);
+
+            return valido ? string.Empty : MensajeGastoHelper.ArchivoIncorrecto;
+        }
+
+        private static string ValidarFila(ClosedXML.Excel.IXLRangeRow fila, List<string> cabecera)
+        {
+            string error = string.Empty;
+            string fecha = fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString().Trim();
+            string descripcion = fila.Cell(cabecera.IndexOf("Descripcion") + 1).GetString().Trim();
+            string valor = fila.Cell(cabecera.IndexOf("Valor") + 1).GetString().Trim();
+            string[] datos = [fecha, descripcion, valor];
+            bool vacios = datos.Where(d => string.IsNullOrEmpty(d)).Any();
+
+            if (vacios)
+            {
+                error = "Por favor llenar todos los campos";
+            }
+            if (!DateTime.TryParse(fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString(), out DateTime fechaValida))
+            {
+                error += " Por favor ingresar una fecha valida";
+            }
+            if (!decimal.TryParse(fila.Cell(cabecera.IndexOf("Valor") + 1).GetString(), out decimal valorValido))
+            {
+                error += "Por favor ingresar un valor valido";
+            }
+
+            return error;
+        }
+
+        private static DataTable FormatearTablaGastos()
+        {
+            string[] campos = Formatos.ObtenerColumnasGastos();
+            List<KeyValuePair<string, string>> lista = [];
+
+            for (int i = 0; i < campos.Length; i++)
+            {
+                string tipo = string.Empty;
+                switch (i)
+                {
+                    case 0:
+                    case 1:
+                        tipo = "int";
+                        break;
+                    case 2:
+                        tipo = "string";
+                        break;
+                    case 3:
+                        tipo = "dateonly";
+                        break;
+                    case 4:
+                        tipo = "decimal";
+                        break;
+                    case 5:
+                    case 6:
+                        tipo = "bool";
+                        break;
+                }
+                lista.Add(new KeyValuePair<string, string>(campos[i], tipo));
+            }
+            return Formatos.CrearTabla(lista);
+        }
+
+        private static DataRow SetearDatosFila(DataTable dataTable, ClosedXML.Excel.IXLRangeRow fila, int idUsuario, List<string> cabecera)
+        {
+            // Crear un nuevo DataRow a partir del DataTable
+            DataRow dataRow = dataTable.NewRow();
+            string descripcion = fila.Cell(cabecera.IndexOf("Descripcion") + 1).GetString().Trim();
+            string tarjeta = fila.Cell(cabecera.IndexOf("Tarjeta") + 1).GetString().Trim();
+            DateOnly fecha = Formatos.DevolverSoloFecha(DateTime.Parse(fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString().Trim()));
+            decimal valor = decimal.Parse(fila.Cell(cabecera.IndexOf("Valor") + 1).GetString().Trim());
+            dataRow["IdDeudor"] = idUsuario;
+            dataRow["IdUsuario"] = idUsuario;
+            dataRow["Descripcion"] = tarjeta.ToLower() == "si" ? $"Tarjeta - {descripcion}" : descripcion;
+            dataRow["FechaPrestamo"] = fecha;
+            dataRow["MontoPrestamo"] = valor;
+            dataRow["PagoCompleto"] = false;
+            dataRow["Propio"] = true;
+
+            return dataRow;
+        }
+
+        private static async Task<ClosedXML.Excel.IXLWorksheet> ObtenerArchivo(IFormFile file)
+        {
+            using MemoryStream stream = new();
+            await file.CopyToAsync(stream);
+
+            using ClosedXML.Excel.XLWorkbook workbook = new ClosedXML.Excel.XLWorkbook(stream);
+            ClosedXML.Excel.IXLWorksheet worksheet = workbook.Worksheets.First();
+
+            return worksheet;
         }
     }
 }

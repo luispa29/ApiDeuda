@@ -1,16 +1,13 @@
 ﻿using Modelos.Query.Prestamo;
 using Modelos.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace Interfaces.Gasto
 {
     public interface IGasto
     {
         Task<GeneralResponse> Registrar(PrestamoQuery gasto, int idUsuario);
+        Task<GeneralResponse> CargaMasiva(DataTable gastos);
 
         Task<GeneralResponse> Editar(PrestamoQuery gasto, int idUsuario);
 

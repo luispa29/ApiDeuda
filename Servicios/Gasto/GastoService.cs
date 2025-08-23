@@ -8,8 +8,10 @@ using Modelos.Query.Prestamo;
 using Modelos.Response;
 using Modelos.Response.Prestamo;
 using Servicios.Usuarios;
+using System.Data;
 using Utilidades;
 using Utilidades.Helper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Servicios.Gasto
 {
@@ -179,6 +181,39 @@ namespace Servicios.Gasto
             }
         }
 
+        public async Task<GeneralResponse> CargaMasiva(DataTable gastos)
+        {
+            try
+            {
+                var cadena = options.Value.DefaultConnection;
+                using (var conexion = new SqlConnection(cadena))
+                {
+                    await conexion.OpenAsync();
+                    using var bulkCopy = new SqlBulkCopy(conexion)
+                    {
+                        DestinationTableName = "dbo.Prestamos"
+                    };
+
+                    string[] campos = Formatos.ObtenerColumnasGastos();
+
+                    foreach (var campo in campos)
+                    {
+                        bulkCopy.ColumnMappings.Add(campo, campo);
+                    }
+
+                    await bulkCopy.WriteToServerAsync(gastos);
+                    await conexion.CloseAsync();
+                }
+
+                return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeGastoHelper.Registrado);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
+        }
+
         public async Task<GeneralResponse> RptGastos(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
         {
             try
@@ -209,7 +244,7 @@ namespace Servicios.Gasto
                                 Prestamo = Convert.ToDecimal(reader["MontoPrestamo"]),
                                 Propio = Convert.ToBoolean(reader["propio"].ToString())
                             });
-                           
+
                         }
                     }
                     await conexion.CloseAsync();
@@ -232,5 +267,6 @@ namespace Servicios.Gasto
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
+
     }
 }

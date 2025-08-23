@@ -22,6 +22,14 @@ namespace Api.Controllers
             return Ok(await _gasto.Registrar(gasto, token));
         }
 
+        [HttpPost("CargaMasiva")]
+        public async Task<IActionResult> CargaMasiva(IFormFile file)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+
+            return Ok(await _gasto.CargaMasiva(file, token));
+        }
+
         [HttpPut("Editar")]
         public async Task<IActionResult> Editar(PrestamoQuery gasto)
         {
