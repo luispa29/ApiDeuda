@@ -1,13 +1,14 @@
 ﻿using DBEF.Models;
 using Interfaces.Presupuesto;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Modelos.Response;
-using Utilidades.Helper;
 using Utilidades;
+using Utilidades.Helper;
 
 namespace Servicios.Presupuesto
 {
-    public class PresupuestoService (AppDeudaContext bd) : IPresupuesto
+    public class PresupuestoService (AppDeudaContext bd, ILogger<PresupuestoService> _logger) : IPresupuesto
     {
         private readonly AppDeudaContext _bd = bd;
 
@@ -33,9 +34,9 @@ namespace Servicios.Presupuesto
                
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePresupuestoHelper.Registrado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -54,9 +55,9 @@ namespace Servicios.Presupuesto
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePresupuestoHelper.Actualizado);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

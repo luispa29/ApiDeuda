@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Modelos.Response;
 using Modelos.Response.Usuario;
-using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -59,8 +58,7 @@ namespace Servicios.Usuarios
             }
             catch (Exception ex)
             {
-               _logger.LogError(ex,ex.Message);
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -194,8 +192,9 @@ namespace Servicios.Usuarios
 
                 return respuesta;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

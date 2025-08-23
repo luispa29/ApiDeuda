@@ -6,15 +6,13 @@ using Utilidades.Helper;
 using Utilidades;
 using Modelos.Response.Abono;
 using Microsoft.Win32;
+using Microsoft.Extensions.Logging;
 
 namespace Logica.Abono
 {
-    public class AbonoLogica(IAbono abono, IPrestamo prestamo, IUsuario usuario) : IAbonoLogica
+    public class AbonoLogica(IAbono _abono, IPrestamo _prestamo, IUsuario _usuario, ILogger<AbonoLogica> _logger) : IAbonoLogica
     {
-        private readonly IAbono _abono = abono;
-        private readonly IPrestamo _prestamo = prestamo;
-        private readonly IUsuario _usuario = usuario;
-
+   
         public async Task<GeneralResponse> Registrar(decimal abono, int idPrestamo, string token)
         {
             try
@@ -47,8 +45,9 @@ namespace Logica.Abono
                 }
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -91,8 +90,9 @@ namespace Logica.Abono
                     return valido;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -124,8 +124,9 @@ namespace Logica.Abono
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -152,13 +153,14 @@ namespace Logica.Abono
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExistePrestamo);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
 
-        private static GeneralResponse ValidarAbono(bool existePrestamo, decimal montoAbonar, decimal totalAbonado, decimal valorPrestamo, string token)
+        private  GeneralResponse ValidarAbono(bool existePrestamo, decimal montoAbonar, decimal totalAbonado, decimal valorPrestamo, string token)
         {
             try
             {
@@ -180,9 +182,9 @@ namespace Logica.Abono
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, string.Empty);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

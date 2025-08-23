@@ -1,16 +1,16 @@
 ﻿using DBEF.Models;
 using Interfaces.Prestamo;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
 using Modelos.Response.Prestamo;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Components.Forms;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Servicios.Prestamo
 {
-    public class PrestamoService(AppDeudaContext db) : IPrestamo
+    public class PrestamoService(AppDeudaContext db, ILogger<PrestamoService> _logger) : IPrestamo
     {
         private readonly AppDeudaContext _db = db;
 
@@ -114,8 +114,9 @@ namespace Servicios.Prestamo
                     Data = prestamoResponses
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -143,8 +144,9 @@ namespace Servicios.Prestamo
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Actualizado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -175,10 +177,9 @@ namespace Servicios.Prestamo
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Eliminado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -264,8 +265,9 @@ namespace Servicios.Prestamo
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajePrestamoHelper.Registrado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

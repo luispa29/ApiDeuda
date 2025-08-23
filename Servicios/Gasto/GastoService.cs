@@ -1,19 +1,19 @@
 ﻿using DBEF.Models;
 using Interfaces.Gasto;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
-using Microsoft.EntityFrameworkCore;
 using Modelos.Response.Prestamo;
-using Microsoft.Win32;
-using Interfaces.Deudor.Service;
-using Microsoft.Extensions.Options;
-using Microsoft.Data.SqlClient;
+using Servicios.Usuarios;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Servicios.Gasto
 {
-    public class GastoService(AppDeudaContext db, IOptions<AppSettings> options) : IGasto
+    public class GastoService(AppDeudaContext db, IOptions<AppSettings> options, ILogger<UsuarioService> _logger) : IGasto
     {
         private readonly AppDeudaContext _db = db;
         public async Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta)
@@ -57,12 +57,11 @@ namespace Servicios.Gasto
                     Data = prestamoResponses
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
-
         }
 
 
@@ -112,8 +111,9 @@ namespace Servicios.Gasto
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeGastoHelper.Actualizado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -134,9 +134,9 @@ namespace Servicios.Gasto
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeGastoHelper.Eliminado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -172,8 +172,9 @@ namespace Servicios.Gasto
                 await _db.SaveChangesAsync();
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeGastoHelper.Registrado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -227,7 +228,7 @@ namespace Servicios.Gasto
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

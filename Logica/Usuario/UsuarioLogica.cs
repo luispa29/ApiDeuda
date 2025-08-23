@@ -1,12 +1,13 @@
 ﻿using Interfaces.Usuario;
 using Interfaces.Usuario.Services;
+using Microsoft.Extensions.Logging;
 using Modelos.Response;
 using Utilidades;
 using Utilidades.Helper;
 
 namespace Logica.Usuario
 {
-    public class UsuarioLogica(IUsuario usuario) : IUsuarioLogica
+    public class UsuarioLogica(IUsuario usuario, ILogger<UsuarioLogica> _logger) : IUsuarioLogica
     {
         private readonly IUsuario _usuario = usuario;
         public async Task<GeneralResponse> ConsultarUsuarios(int pagina, int registros, string token)
@@ -46,8 +47,9 @@ namespace Logica.Usuario
                     return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, token, string.Empty);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

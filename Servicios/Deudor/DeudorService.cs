@@ -1,14 +1,15 @@
 ﻿using DBEF.Models;
 using Interfaces.Deudor.Service;
-using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Modelos.Response;
 using Modelos.Response.Deudor;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Servicios.Deudor
 {
-    public class DeudorService(AppDeudaContext db) : IDeudor
+    public class DeudorService(AppDeudaContext db, ILogger<DeudorService> _logger) : IDeudor
     {
         private readonly AppDeudaContext _db = db;
 
@@ -30,8 +31,9 @@ namespace Servicios.Deudor
                 return respuesta;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -98,8 +100,9 @@ namespace Servicios.Deudor
 
                 return respuesta;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -122,8 +125,9 @@ namespace Servicios.Deudor
                 return respuesta;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -169,8 +173,9 @@ namespace Servicios.Deudor
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajesDeudorHelper.Registrado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

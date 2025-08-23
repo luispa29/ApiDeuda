@@ -3,10 +3,11 @@ using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
 using Interfaces.Usuario.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Logica.Presupueso
 {
-    public class PresupuestoLogica (IPresupuesto presupuesto, IUsuario usuario) : IPresupuestoLogica
+    public class PresupuestoLogica (IPresupuesto presupuesto, IUsuario usuario, ILogger<PresupuestoLogica> _logger) : IPresupuestoLogica
     {
         private readonly IPresupuesto _presupuesto = presupuesto;
         private readonly IUsuario _usuario = usuario;
@@ -32,9 +33,10 @@ namespace Logica.Presupueso
 
                 return actualizar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+                _logger.LogError(ex, ex.Message);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
 
@@ -62,8 +64,9 @@ namespace Logica.Presupueso
                 
                 return registrar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

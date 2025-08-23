@@ -2,20 +2,15 @@
 using Interfaces.Deudor.Service;
 using Interfaces.Prestamo;
 using Interfaces.Usuario.Services;
+using Microsoft.Extensions.Logging;
 using Modelos.Query.Prestamo;
 using Modelos.Response;
-using Modelos.Response.Prestamo;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilidades;
 using Utilidades.Helper;
 
 namespace Logica.Prestamo
 {
-    public class PrestamoLogica(IPrestamo prestamo, IUsuario usuario, IDeudor deudor, IAbono abono) : IPrestamoLogica
+    public class PrestamoLogica(IPrestamo prestamo, IUsuario usuario, IDeudor deudor, IAbono abono, ILogger<PrestamoLogica> _logger) : IPrestamoLogica
     {
         private readonly IUsuario _usuario = usuario;
         private readonly IPrestamo _prestamo = prestamo;
@@ -47,8 +42,9 @@ namespace Logica.Prestamo
                 respuesta.Contador = await _prestamo.PorCobrar(idUsuario);
                 return respuesta;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -78,8 +74,9 @@ namespace Logica.Prestamo
                 return consulta;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -114,8 +111,9 @@ namespace Logica.Prestamo
                 }
                 else { return valido; }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -142,8 +140,9 @@ namespace Logica.Prestamo
                     return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, token, MensajePrestamoHelper.NoExisteDeudor);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -179,8 +178,9 @@ namespace Logica.Prestamo
 
                 return eliminar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

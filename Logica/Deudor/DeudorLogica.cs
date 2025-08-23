@@ -1,18 +1,21 @@
 ﻿using Interfaces.Deudor.Logica;
 using Interfaces.Deudor.Service;
-using Interfaces.Usuario.Services;
-using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
 using Interfaces.Prestamo;
+using Interfaces.Usuario.Services;
+using Microsoft.Extensions.Logging;
+using Modelos.Response;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Logica.Deudor
 {
-    public class DeudorLogica(IDeudor deudor, IUsuario usuario, IPrestamo prestamo) : IDeudorLogica
+    public class DeudorLogica(IDeudor deudor, IUsuario usuario, IPrestamo prestamo, ILogger<DeudorLogica> logger) : IDeudorLogica
     {
         private readonly IDeudor _deudor = deudor;
         private readonly IUsuario _usuario = usuario;
         private readonly IPrestamo _prestamo = prestamo;
+        private readonly ILogger<DeudorLogica> _logger = logger;
+
 
         public async Task<GeneralResponse> ConsultarDeudores(string token)
         {
@@ -29,8 +32,9 @@ namespace Logica.Deudor
                 return consulta;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -56,8 +60,9 @@ namespace Logica.Deudor
                     return actualizar;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -75,8 +80,9 @@ namespace Logica.Deudor
                 
                 return cambiarEstado;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -104,8 +110,9 @@ namespace Logica.Deudor
                     return registrar;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

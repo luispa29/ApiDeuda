@@ -2,10 +2,11 @@
 using Modelos.Response;
 using Utilidades.Helper;
 using Utilidades;
+using Microsoft.Extensions.Logging;
 
 namespace Logica.Prestamo
 {
-    public class CompartirPrestamoLogica(ICompartirPrestamo compartir, IPrestamo prestamo) : ICompartirPrestamoLogica
+    public class CompartirPrestamoLogica(ICompartirPrestamo compartir, IPrestamo prestamo, ILogger<CompartirPrestamoLogica> _logger) : ICompartirPrestamoLogica
     {
         private readonly ICompartirPrestamo _compartir = compartir;
         private readonly IPrestamo _prestamo = prestamo;
@@ -24,9 +25,9 @@ namespace Logica.Prestamo
 
                 return Transaccion.Respuesta(CodigoRespuesta.NoExiste, 0, string.Empty, MensajePrestamoHelper.CodigoIncorrecto);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }

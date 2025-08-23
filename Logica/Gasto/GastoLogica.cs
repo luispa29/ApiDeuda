@@ -12,10 +12,11 @@ using MigraDoc.DocumentObjectModel.Tables;
 using Modelos.Response.Prestamo;
 using Modelos.Response.Gasto;
 using Interfaces.Presupuesto;
+using Microsoft.Extensions.Logging;
 
 namespace Logica.Gasto
 {
-    public class GastoLogica(IGasto _gasto, IUsuario _usuario, IPresupuesto _presupuesto) : IGastoLogica
+    public class GastoLogica(IGasto _gasto, IUsuario _usuario, IPresupuesto _presupuesto, ILogger<GastoLogica> _logger) : IGastoLogica
     {
     
         public async Task<GeneralResponse> Consultar(int pagina, int registros, string token, DateTime? fechaDesde, DateTime? fechaHasta)
@@ -47,8 +48,9 @@ namespace Logica.Gasto
                 return consulta;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -72,8 +74,9 @@ namespace Logica.Gasto
 
                 return editar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -97,8 +100,9 @@ namespace Logica.Gasto
 
                 return eliminar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -116,8 +120,9 @@ namespace Logica.Gasto
                 registrar.Token = token;
                 return registrar;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -172,6 +177,7 @@ namespace Logica.Gasto
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -306,7 +312,11 @@ namespace Logica.Gasto
                 return respuesta;
             }
 
-            catch { return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError); }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
     }
 }

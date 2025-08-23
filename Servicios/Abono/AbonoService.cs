@@ -1,14 +1,15 @@
 ﻿using DBEF.Models;
 using Interfaces.Abono;
-using Modelos.Response;
-using Utilidades.Helper;
-using Utilidades;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Modelos.Response;
 using Modelos.Response.Abono;
+using Utilidades;
+using Utilidades.Helper;
 
 namespace Servicios.Abono
 {
-    public class AbonoService(AppDeudaContext db) : IAbono
+    public class AbonoService(AppDeudaContext db, ILogger<AbonoService> _logger) : IAbono
     {
         private readonly AppDeudaContext _db = db;
 
@@ -29,8 +30,9 @@ namespace Servicios.Abono
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeAbonoHelper.Actualizado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -50,8 +52,9 @@ namespace Servicios.Abono
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeAbonoHelper.Registrado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -109,8 +112,9 @@ namespace Servicios.Abono
 
                 return Transaccion.Respuesta(CodigoRespuesta.Exito, 0, string.Empty, MensajeAbonoHelper.Eliminado);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
@@ -141,8 +145,9 @@ namespace Servicios.Abono
                     Data = abonos
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
             }
         }
