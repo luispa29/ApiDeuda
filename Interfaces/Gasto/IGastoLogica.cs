@@ -14,7 +14,7 @@ namespace Interfaces.Gasto
 
         Task<GeneralResponse> Eliminar(int idGasto, string token);
         Task<GeneralResponse> RptGasto(string token, DateTime fechaDesde, DateTime fechaHasta);
-        Task<GeneralResponse> ResumenGastos(string token);
+        Task<GeneralResponse> ResumenGastos(string token, DateTime? fechaDesde, DateTime? fechaHasta);
         Task<GeneralResponse> CargaMasiva(IFormFile file, string token);
 
     }

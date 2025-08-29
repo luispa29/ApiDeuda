@@ -204,7 +204,7 @@ namespace Logica.Gasto
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError,ex);
             }
         }
 
@@ -351,7 +351,7 @@ namespace Logica.Gasto
             }
         }
 
-        public async Task<GeneralResponse> ResumenGastos(string token)
+        public async Task<GeneralResponse> ResumenGastos(string token, DateTime? fechaDesde, DateTime? fechaHasta)
         {
             try
             {
@@ -361,8 +361,8 @@ namespace Logica.Gasto
 
                 int idUsuario = await _usuario.ObtenerId(correo);
 
-                DateOnly fechaHastaConsulta = Formatos.ObtenerFechaHoraLocal();
-                DateOnly fechaDesdeConsulta = Formatos.DevolverPrimerDiaMes(fechaHastaConsulta);
+                DateOnly fechaDesdeConsulta = Formatos.DevolverSoloFecha((DateTime)fechaDesde); //Formatos.DevolverPrimerDiaMes(fechaHastaConsulta);
+                DateOnly fechaHastaConsulta = Formatos.DevolverSoloFecha((DateTime)fechaHasta);// Formatos.ObtenerFechaHoraLocal();
                 decimal presupuesto = await _presupuesto.Obtener(idUsuario, fechaDesdeConsulta.Month, fechaDesdeConsulta.Year);
 
                 var respuesta = await _gasto.RptGastos(idUsuario, fechaDesdeConsulta, fechaHastaConsulta);

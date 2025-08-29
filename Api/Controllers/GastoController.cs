@@ -62,11 +62,11 @@ namespace Api.Controllers
             return Ok(await _gasto.RptGasto(token,fechaDesde,fechaHasta));
         } 
         [HttpGet("Resumen")]
-        public async Task<IActionResult> Resumen()
+        public async Task<IActionResult> Resumen( DateTime? fechaDesde, DateTime? fechaHasta)
         {
             string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
             
-            return Ok(await _gasto.ResumenGastos(token));
+            return Ok(await _gasto.ResumenGastos(token,fechaDesde,fechaHasta));
         }
     }
 }
