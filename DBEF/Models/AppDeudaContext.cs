@@ -17,9 +17,13 @@ public partial class AppDeudaContext : DbContext
 
     public virtual DbSet<Abono> Abonos { get; set; }
 
+    public virtual DbSet<Catalogo> Catalogos { get; set; }
+
     public virtual DbSet<Deudore> Deudores { get; set; }
 
     public virtual DbSet<Ignorado> Ignorados { get; set; }
+
+    public virtual DbSet<Log> Logs { get; set; }
 
     public virtual DbSet<Prestamo> Prestamos { get; set; }
 
@@ -39,6 +43,19 @@ public partial class AppDeudaContext : DbContext
                 .HasForeignKey(d => d.IdPrestamo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Abonos_prestamo");
+        });
+
+        modelBuilder.Entity<Catalogo>(entity =>
+        {
+            entity.ToTable("Catalogo");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Categoria)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Deudore>(entity =>
@@ -64,6 +81,11 @@ public partial class AppDeudaContext : DbContext
                 .HasConstraintName("FK_Ignorados_Usuario");
         });
 
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.Property(e => e.TimeStamp).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<Prestamo>(entity =>
         {
             entity.Property(e => e.Descripcion)
@@ -78,10 +100,18 @@ public partial class AppDeudaContext : DbContext
             entity.Property(e => e.MontoPrestamo).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Propio).HasColumnName("propio");
 
+            entity.HasOne(d => d.IdCategoriaNavigation).WithMany(p => p.PrestamoIdCategoriaNavigations)
+                .HasForeignKey(d => d.IdCategoria)
+                .HasConstraintName("FK_Prestamos_Categoria");
+
             entity.HasOne(d => d.IdDeudorNavigation).WithMany(p => p.Prestamos)
                 .HasForeignKey(d => d.IdDeudor)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Prestamos_deudor");
+
+            entity.HasOne(d => d.IdMedioNavigation).WithMany(p => p.PrestamoIdMedioNavigations)
+                .HasForeignKey(d => d.IdMedio)
+                .HasConstraintName("FK_Prestamos_Medio");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Prestamos)
                 .HasForeignKey(d => d.IdUsuario)

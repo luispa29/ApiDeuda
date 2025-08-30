@@ -27,9 +27,17 @@ public partial class Prestamo
 
     public bool? Propio { get; set; }
 
+    public int? IdCategoria { get; set; }
+
+    public int? IdMedio { get; set; }
+
     public virtual ICollection<Abono> Abonos { get; set; } = new List<Abono>();
 
+    public virtual Catalogo? IdCategoriaNavigation { get; set; }
+
     public virtual Deudore IdDeudorNavigation { get; set; } = null!;
+
+    public virtual Catalogo? IdMedioNavigation { get; set; }
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }
