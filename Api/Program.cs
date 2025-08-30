@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
 using Utilidades;
+using Log = Serilog.Log;
 
 var builder = WebApplication.CreateBuilder(args);
 string MiCors = "MiCors";

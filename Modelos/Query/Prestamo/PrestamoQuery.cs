@@ -5,6 +5,8 @@
         public int Id { get; set; }
 
         public int IdDeudor { get; set; }
+        public int IdCategoria{ get; set; }
+        public int IdMedio{ get; set; }
 
         public string? Descripcion { get; set; }
 

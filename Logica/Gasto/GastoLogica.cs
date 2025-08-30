@@ -6,6 +6,7 @@ using Interfaces.Presupuesto;
 using Interfaces.Usuario.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
@@ -162,7 +163,7 @@ namespace Logica.Gasto
 
                 List<string> errores = new();
 
-                #pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
+#pragma warning disable CS8602 // Desreferencia de una referencia posiblemente NULL.
                 IEnumerable<ClosedXML.Excel.IXLRangeRow> filas = worksheet.RangeUsed().RowsUsed().Skip(1);
 #pragma warning restore CS8602 // Desreferencia de una referencia posiblemente NULL.
 
@@ -170,7 +171,7 @@ namespace Logica.Gasto
 
                 int filasConDatos = worksheet.Rows(2, lastRow).Count(r => !r.Cells().All(c => string.IsNullOrWhiteSpace(c.GetString())));
 
-                if(filasConDatos== 0)
+                if (filasConDatos == 0)
                 {
                     return Transaccion.Respuesta(CodigoRespuesta.Error, 0, token, MensajeGastoHelper.SinRegistros, errores);
                 }
@@ -178,9 +179,11 @@ namespace Logica.Gasto
 
                 int rowIndex = 2;
 
+                var categorias = (await _gasto.GetCatalogo("Categoria")).Data as List<CatalogoResponse>;
+                var medio = (await _gasto.GetCatalogo("Medio")).Data as List<CatalogoResponse>;
                 foreach (var fila in filas)
                 {
-                    string validar = ValidarFila(fila, cabecera);
+                    string validar = ValidarFila(fila, cabecera, categorias, medio);
                     if (string.IsNullOrEmpty(validar))
                     {
                         gastos.Rows.Add(SetearDatosFila(gastos, fila, idUsuario, cabecera));
@@ -204,7 +207,7 @@ namespace Logica.Gasto
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError,ex);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError, ex);
             }
         }
 
@@ -310,6 +313,7 @@ namespace Logica.Gasto
             parrafo.Format.Font.Bold = bold;
             parrafo.Format.Font.Size = 12;
             parrafo.Format.Alignment = ParagraphAlignment.Left;
+            parrafo.Format.Font.Color = valor.ToLower().Contains("iva ") ? new MigraDoc.DocumentObjectModel.Color(255, 0, 5) : new MigraDoc.DocumentObjectModel.Color(0, 0, 0);
             FormattedText texto = new();
 
             texto.AddText(valor);
@@ -403,20 +407,22 @@ namespace Logica.Gasto
 
         private static string ValidarColumnas(List<string> cabeceraArhivo)
         {
-            List<string> cabecera = ["Fecha", "Descripcion", "Valor", "Tarjeta"];
+            List<string> cabecera = ["Fecha", "Descripcion", "Valor", "Medio", "Categoria"];
 
             bool valido = cabecera.SequenceEqual(cabeceraArhivo);
 
             return valido ? string.Empty : MensajeGastoHelper.ArchivoIncorrecto;
         }
 
-        private static string ValidarFila(ClosedXML.Excel.IXLRangeRow fila, List<string> cabecera)
+        private static string ValidarFila(ClosedXML.Excel.IXLRangeRow fila, List<string> cabecera, List<CatalogoResponse> categorias, List<CatalogoResponse> medios)
         {
             string error = string.Empty;
             string fecha = fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString().Trim();
             string descripcion = fila.Cell(cabecera.IndexOf("Descripcion") + 1).GetString().Trim();
             string valor = fila.Cell(cabecera.IndexOf("Valor") + 1).GetString().Trim();
-            string[] datos = [fecha, descripcion, valor];
+            string idCategoria = fila.Cell(cabecera.IndexOf("Categoria") + 1).GetString().Trim();
+            string idMedio = fila.Cell(cabecera.IndexOf("Medio") + 1).GetString().Trim();
+            string[] datos = [fecha, descripcion, valor, idCategoria, idMedio];
             bool vacios = datos.Where(d => string.IsNullOrEmpty(d)).Any();
 
             if (vacios)
@@ -430,6 +436,14 @@ namespace Logica.Gasto
             if (!decimal.TryParse(fila.Cell(cabecera.IndexOf("Valor") + 1).GetString(), out decimal valorValido))
             {
                 error += " | Por favor ingresar un valor valido";
+            }
+            if (!int.TryParse(fila.Cell(cabecera.IndexOf("Categoria") + 1).GetString(), out int categoriaValido) || categorias.Where(m => m.Codigo == categoriaValido).Any() == false)
+            {
+                error += " | Por favor ingresar una categoria valida";
+            }
+            if (!int.TryParse(fila.Cell(cabecera.IndexOf("Medio") + 1).GetString(), out int medioValido) || medios.Where(m => m.Codigo == medioValido).Any() == false)
+            {
+                error += " | Por favor ingresar un medio valido";
             }
 
             return error;
@@ -447,6 +461,8 @@ namespace Logica.Gasto
                 {
                     case 0:
                     case 1:
+                    case 7:
+                    case 8:
                         tipo = "int";
                         break;
                     case 2:
@@ -473,16 +489,19 @@ namespace Logica.Gasto
             // Crear un nuevo DataRow a partir del DataTable
             DataRow dataRow = dataTable.NewRow();
             string descripcion = fila.Cell(cabecera.IndexOf("Descripcion") + 1).GetString().Trim();
-            string tarjeta = fila.Cell(cabecera.IndexOf("Tarjeta") + 1).GetString().Trim();
             DateOnly fecha = Formatos.DevolverSoloFecha(DateTime.Parse(fila.Cell(cabecera.IndexOf("Fecha") + 1).GetString().Trim()));
             decimal valor = decimal.Parse(fila.Cell(cabecera.IndexOf("Valor") + 1).GetString().Trim());
+            int idCategoria = int.Parse(fila.Cell(cabecera.IndexOf("Categoria") + 1).GetString().Trim());
+            int idMedio= int.Parse(fila.Cell(cabecera.IndexOf("Medio") + 1).GetString().Trim());
             dataRow["IdDeudor"] = idUsuario;
             dataRow["IdUsuario"] = idUsuario;
-            dataRow["Descripcion"] = tarjeta.ToLower() == "si" ? $"Tarjeta - {descripcion}" : descripcion;
+            dataRow["Descripcion"] =  descripcion;
             dataRow["FechaPrestamo"] = fecha;
             dataRow["MontoPrestamo"] = valor;
             dataRow["PagoCompleto"] = false;
             dataRow["Propio"] = true;
+            dataRow["IdMedio"] = idMedio;
+            dataRow["IdCategoria"] = idCategoria;
 
             return dataRow;
         }
@@ -496,6 +515,27 @@ namespace Logica.Gasto
             ClosedXML.Excel.IXLWorksheet worksheet = workbook.Worksheets.First();
 
             return worksheet;
+        }
+
+        public async Task<GeneralResponse> GetCatalogo(string nombre, string token)
+        {
+            try
+            {
+                string correo = _usuario.ObtenerCorreoToken(token);
+                token = _usuario.GenerarToken(correo);
+
+                int idUsuario = await _usuario.ObtenerId(correo);
+
+                GeneralResponse consulta = await _gasto.GetCatalogo(nombre);
+
+                consulta.Token = token;
+                return consulta;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return Transaccion.Respuesta(CodigoRespuesta.Error, 0, string.Empty, MensajeErrorHelperMensajeErrorHelper.OcurrioError);
+            }
         }
     }
 }

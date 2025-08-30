@@ -15,5 +15,11 @@ namespace Modelos.Response.Prestamo
         public DateOnly? FechaPago { get; set; }
         public bool? Completo { get; set; }
         public bool Propio { get; set; }
+
+        public int IdCategoria { get; set; }
+        public int IdMedio{ get; set; }
+        public string? Categoria{ get; set; }
+        public string? Medio{ get; set; }
+
     }
 }

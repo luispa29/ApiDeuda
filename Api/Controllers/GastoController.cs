@@ -68,5 +68,12 @@ namespace Api.Controllers
             
             return Ok(await _gasto.ResumenGastos(token,fechaDesde,fechaHasta));
         }
+        [HttpGet("Catalogos")]
+        public async Task<IActionResult> Resumen( string nombre)
+        {
+            string token = Dependencias.DevolverTokenLimpio(Request.Headers.Authorization.FirstOrDefault());
+            
+            return Ok(await _gasto.GetCatalogo(nombre,token));
+        }
     }
 }

@@ -87,7 +87,7 @@ namespace Utilidades
 
         public static string[] ObtenerColumnasGastos()
         {
-            return ["IdDeudor", "IdUsuario", "Descripcion", "FechaPrestamo", "MontoPrestamo", "PagoCompleto", "propio"];
+            return ["IdDeudor", "IdUsuario", "Descripcion", "FechaPrestamo", "MontoPrestamo", "PagoCompleto", "propio", "IdCategoria", "IdMedio"];
         }
        
         public static DataTable CrearTabla(List<KeyValuePair<string, string>> columnas) {

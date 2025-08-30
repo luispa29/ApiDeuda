@@ -18,5 +18,6 @@ namespace Interfaces.Gasto
         Task<GeneralResponse> ConsultarGastos(int pagina, int registros, int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
         Task<GeneralResponse> ConsultarTotal(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
         Task<GeneralResponse> RptGastos(int idUsuario, DateOnly? fechaDesde, DateOnly? fechaHasta);
+        Task<GeneralResponse> GetCatalogo(string nombre);
     }
 }

@@ -16,6 +16,8 @@ namespace Interfaces.Gasto
         Task<GeneralResponse> RptGasto(string token, DateTime fechaDesde, DateTime fechaHasta);
         Task<GeneralResponse> ResumenGastos(string token, DateTime? fechaDesde, DateTime? fechaHasta);
         Task<GeneralResponse> CargaMasiva(IFormFile file, string token);
+        Task<GeneralResponse> GetCatalogo(string nombre, string token);
+
 
     }
 }
